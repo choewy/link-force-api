@@ -1,7 +1,13 @@
-export enum SocketEventName {
+export enum SocketSubEvent {
   Connect = 'connect',
-  ConnectAck = 'connect:ack',
   Error = 'error',
   Exception = 'exception',
   Disconnect = 'disconnect',
+  Setting = 'setting',
+  Play = 'play',
+  Clear = 'clear',
+}
+
+export enum SocketPubEvent {
+  PlayComplete = 'play',
 }

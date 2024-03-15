@@ -1,14 +1,40 @@
-import { SocketEventName, useSocketConnect, useSocketEvent } from '@core';
-import { SocketExceptionDto } from '@implements';
-import { useInitPlaySetting } from '@stores';
+import AlertComment from '@components/AlertComment';
+import AlertImage from '@components/AlertImage';
+import AlertMessage from '@components/AlertMessage';
+import { SocketSubEvent, useSocketConnect, useSocketEvent } from '@core';
+import { PlaySettingDto, PlayTargetDto, SocketExceptionDto } from '@implements';
+import {
+  playSettingStore,
+  playTargetStore,
+  useClearPlayTarget,
+  usePlayTargetLoading,
+  usePlayTargetTimer,
+  useSetPlaySetting,
+  useSetPlayTarget,
+} from '@stores';
+import { useRecoilValue } from 'recoil';
 
 export default function AlertWidget() {
-  useSocketConnect();
-  useSocketEvent(SocketEventName.Connect, null, () => console.log('connected'));
-  useSocketEvent(SocketEventName.ConnectAck, null, useInitPlaySetting());
-  useSocketEvent(SocketEventName.Error, Error, (error) => console.log('error', error));
-  useSocketEvent(SocketEventName.Exception, SocketExceptionDto, (exception) => console.log('exception', exception));
-  useSocketEvent(SocketEventName.Disconnect, null, () => console.log('disconnected'));
+  const playSetting = useRecoilValue(playSettingStore);
+  const playTarget = useRecoilValue(playTargetStore);
 
-  return <div>Alert Widget</div>;
+  usePlayTargetLoading();
+  usePlayTargetTimer(playSetting);
+
+  useSocketConnect();
+  useSocketEvent(SocketSubEvent.Connect, null, () => console.log('connected'));
+  useSocketEvent(SocketSubEvent.Error, Error, (error) => console.log('error', error));
+  useSocketEvent(SocketSubEvent.Exception, SocketExceptionDto, (exception) => console.log('exception', exception));
+  useSocketEvent(SocketSubEvent.Disconnect, null, () => console.log('disconnected'));
+  useSocketEvent(SocketSubEvent.Setting, PlaySettingDto, useSetPlaySetting());
+  useSocketEvent(SocketSubEvent.Play, PlayTargetDto, useSetPlayTarget());
+  useSocketEvent(SocketSubEvent.Clear, PlayTargetDto, useClearPlayTarget());
+
+  return (
+    <div>
+      <AlertComment playTarget={playTarget} />
+      <AlertMessage playTarget={playTarget} />
+      <AlertImage playTarget={playTarget} />
+    </div>
+  );
 }

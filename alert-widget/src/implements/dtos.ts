@@ -16,3 +16,11 @@ export class PlaySettingDto {
   @Type(() => Number)
   maxSeconds!: number;
 }
+
+export class PlayTargetDto {
+  id!: number;
+  nickname!: string;
+  amount!: number;
+  message!: string | null;
+  imageUrl!: string | null;
+}
