@@ -9,8 +9,3 @@ export const socket = new Socket(
   }),
   '/widget',
 );
-
-export const setSocketAuth = (id: string) => {
-  socket.auth = { id, type: 'alert' };
-  return socket;
-};

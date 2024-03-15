@@ -1,1 +1,1 @@
-export type SocketEventHandler<T> = (payload?: T) => void | Promise<void>;
+export type SocketEventHandler<T> = (payload: T | null) => void | Promise<void>;

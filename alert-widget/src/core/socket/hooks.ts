@@ -1,19 +1,37 @@
+import { Type, toInstance } from '@common';
 import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { SocketEvent } from './events';
 import { socket } from './socket';
 import { SocketEventHandler } from './types';
 
-export function useSocketEvent<T>(on: string, handler: SocketEventHandler<T>) {
-  const eventName = ['socket', on].join('_');
+export function useSocketConnect() {
+  const params = useParams();
+  const id = params.id ?? null;
 
   useEffect(() => {
-    socket.on(on, (payload) => {
-      if (Array.isArray(payload)) {
-        new SocketEvent(eventName, ...payload).dispatch();
-      } else {
-        new SocketEvent(eventName, payload).dispatch();
+    if (id) {
+      socket.auth = { id, type: 'alert' };
+      socket.connect();
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [id]);
+}
+
+export function useSocketEvent<T>(onEventName: string, Cls: Type<T> | null | undefined, handler: SocketEventHandler<T>) {
+  const eventName = ['socket', onEventName].join('_');
+
+  useEffect(() => {
+    socket.on(onEventName, (value) => {
+      if (Cls && value) {
+        value = toInstance(Cls, value);
       }
+
+      new SocketEvent(eventName, value).dispatch();
     });
   }, []);
 
