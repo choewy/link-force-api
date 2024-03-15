@@ -1,5 +1,4 @@
-import { toInstance } from '@common';
-import { socket } from '@core';
+import { SocketEventHandler } from '@core';
 import { PlaySettingDto } from '@implements';
 import { useCallback } from 'react';
 import { atom, useSetRecoilState } from 'recoil';
@@ -9,14 +8,10 @@ export const playSettingStore = atom<PlaySettingDto | null>({
   default: null,
 });
 
-export const useInitPlaySetting = () => {
+export const useSetPlaySetting = (): SocketEventHandler<PlaySettingDto> => {
   const setPlaySetting = useSetRecoilState(playSettingStore);
 
-  return useCallback(async () => {
-    const ack = await socket.emitWithAck('setting', 'asdf');
-
-    if (ack) {
-      setPlaySetting(toInstance(PlaySettingDto, ack));
-    }
-  }, [setPlaySetting]);
+  return useCallback((playSetting) => {
+    setPlaySetting(playSetting);
+  }, []);
 };
