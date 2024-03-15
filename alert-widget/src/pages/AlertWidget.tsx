@@ -1,27 +1,14 @@
-import { socket, useSocketEvent } from '@core';
-import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { SocketEventName, useSocketConnect, useSocketEvent } from '@core';
+import { SocketExceptionDto } from '@implements';
+import { useInitPlaySetting } from '@stores';
 
 export default function AlertWidget() {
-  const params = useParams();
-  const id = params.id ?? null;
-
-  useEffect(() => {
-    if (id === null) {
-      return;
-    }
-
-    socket.auth = { id, type: 'alert' };
-    socket.connect();
-
-    return () => {
-      socket.disconnect();
-    };
-  }, [id]);
-
-  useSocketEvent('connect', () => console.log('connected'));
-  useSocketEvent('error', (error) => console.log('error', error));
-  useSocketEvent('disconnect', () => console.log('disconnected'));
+  useSocketConnect();
+  useSocketEvent(SocketEventName.Connect, null, () => console.log('connected'));
+  useSocketEvent(SocketEventName.ConnectAck, null, useInitPlaySetting());
+  useSocketEvent(SocketEventName.Error, Error, (error) => console.log('error', error));
+  useSocketEvent(SocketEventName.Exception, SocketExceptionDto, (exception) => console.log('exception', exception));
+  useSocketEvent(SocketEventName.Disconnect, null, () => console.log('disconnected'));
 
   return <div>Alert Widget</div>;
 }
