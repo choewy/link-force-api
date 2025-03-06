@@ -1,0 +1,24 @@
+name: link-force
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: link-force-mysql
+    environment:
+      TZ: Asia/Seoul
+      MYSQL_USER: link-force
+      MYSQL_PASSWORD: link-force
+      MYSQL_DATABASE: link-force
+      MYSQL_ROOT_PASSWORD: link-force
+    volumes:
+      - ../.link-force/mysql/data:/var/lib/mysql
+      - ../.link-force/mysql/log:/var/log
+    ports:
+      - 33067:3306
+    restart: unless-stopped
+    networks:
+      - link-force
+
+networks:
+  link-force:
+    driver: bridge
