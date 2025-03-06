@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { NodeEnv } from '../constants';
+import { NodeEnv } from '../classes/node-env';
 
 @Injectable()
 export class AppConfigFactory {
