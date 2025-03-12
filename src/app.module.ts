@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { ConfigFactoryModule } from './config/config-factory.module';
 import { TypeOrmConfigFactory } from './config/providers/typeorm-config.factory';
 
+import { AuthModule } from './application/auth/auth.module';
 import { LinkModule } from './application/link/link.module';
 
 @Module({
@@ -18,6 +19,7 @@ import { LinkModule } from './application/link/link.module';
         return typeOrmConfigFactory.getTypeOrmModuleOptions();
       },
     }),
+    AuthModule,
     LinkModule,
   ],
   controllers: [AppController],

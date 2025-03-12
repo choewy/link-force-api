@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+
 import { IsEnum, IsNotEmpty, IsUrl } from 'class-validator';
+
 import { LinkStatusCode, LinkType } from 'src/domain/constants';
 
 export class CreateLinkRequestDTO {

@@ -23,11 +23,12 @@ export class LinkService {
   private async saveLink(url: string, type: LinkType, expiredAt: Date | null = null) {
     return this.dataSource.transaction(async (em) => {
       const linkRepository = em.getRepository(Link);
-      const link = linkRepository.create();
-
-      link.url = url;
-      link.type = type;
-      link.expiredAt = expiredAt;
+      const link = linkRepository.create({
+        url,
+        type,
+        expiredAt,
+        statistics: new LinkStatistics(),
+      });
 
       while (true) {
         link.id = link.createId();
@@ -46,9 +47,6 @@ export class LinkService {
 
       await linkRepository.insert(link);
 
-      const linkStatisticsRepository = em.getRepository(LinkStatistics);
-      await linkStatisticsRepository.insert({ link });
-
       return link;
     });
   }
@@ -56,12 +54,7 @@ export class LinkService {
   async createLink(body: CreateLinkRequestDTO) {
     // TODO validation
 
-    let expiredAt: Date | null = null;
-
-    if (body.type === LinkType.Free) {
-      expiredAt = DateTime.local().plus({ days: 7 }).toJSDate();
-    }
-
+    const expiredAt = body.type === LinkType.Free ? DateTime.local().plus({ days: 7 }).toJSDate() : null;
     const link = await this.saveLink(body.url, body.type, expiredAt);
 
     return new CreateLinkResponseDTO(this.appConfigFactory.getLinkBaseURL(), link);
