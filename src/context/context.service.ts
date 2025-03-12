@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { ClsService } from 'nestjs-cls';
-import { ContextKey } from './constants';
+import { ContextKey } from './enums';
 
 @Injectable()
 export class ContextService {
@@ -23,5 +23,13 @@ export class ContextService {
     }
 
     return (Date.now() - requestTimestamp) / 1000;
+  }
+
+  setRequestUserID(id: string | null) {
+    this.clsService.set(ContextKey.RequestUserID, id);
+  }
+
+  getRequestUserID(): string | null {
+    return this.clsService.get(ContextKey.RequestUserID) ?? null;
   }
 }

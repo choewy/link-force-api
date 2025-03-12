@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { LinkStatusCode } from 'src/domain/constants';
+import { LinkStatusCode } from 'src/domain/enums';
 import { Link } from 'src/domain/entities/link.entity';
 
 export class HitLinkResponseDTO {

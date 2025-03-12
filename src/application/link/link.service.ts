@@ -5,7 +5,7 @@ import { DateTime } from 'luxon';
 
 import { AppConfigFactory } from 'src/config/providers/app-config.factory';
 import { Link } from 'src/domain/entities/link.entity';
-import { LinkType } from 'src/domain/constants';
+import { LinkType } from 'src/domain/enums';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
 

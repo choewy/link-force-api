@@ -4,7 +4,7 @@ import { ClsModule } from 'nestjs-cls';
 import { Request, Response } from 'express';
 import { v4 } from 'uuid';
 
-import { ContextKey } from './constants';
+import { ContextKey } from './enums';
 import { ContextService } from './context.service';
 
 @Global()

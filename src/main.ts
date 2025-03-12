@@ -6,13 +6,20 @@ import { AppModule } from './app.module';
 
 import { AppConfigFactory } from './config/providers/app-config.factory';
 import { ServerConfigFactory } from './config/providers/server-config.factory';
+import { RequestHeader } from './persistent/enums';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const appConfig = app.get(AppConfigFactory);
   const serverConfig = app.get(ServerConfigFactory);
 
-  const swaggerConfig = new DocumentBuilder().setTitle(appConfig.getAppName()).setVersion(appConfig.getAppVersion()).build();
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle(appConfig.getAppName())
+    .setVersion(appConfig.getAppVersion())
+    .addBearerAuth({ name: RequestHeader.AccessToken, type: 'http', in: 'header' }, RequestHeader.AccessToken)
+    .addApiKey({ name: RequestHeader.RefreshToken, type: 'apiKey', in: 'header' }, RequestHeader.RefreshToken)
+    .build();
+
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
   SwaggerModule.setup('api-docs', app, swaggerDocument);

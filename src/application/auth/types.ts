@@ -1,0 +1,10 @@
+import { JwtPayload } from 'jsonwebtoken';
+
+export type AccessTokenPayload = JwtPayload & { id: string };
+
+export type RefreshTokenPayload = JwtPayload & { signature: string };
+
+export type VerifyAccessTokenResult = {
+  id: string | null;
+  isExpired: boolean;
+};

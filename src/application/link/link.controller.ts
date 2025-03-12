@@ -1,8 +1,10 @@
 import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { LinkService } from './link.service';
+import { SetOptionalRequestUserID } from 'src/persistent/decorators';
+import { UseAuthGuard } from 'src/application/auth/auth.guard';
 
+import { LinkService } from './link.service';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
 import { HitLinkRequestDTO } from './dto/hit-link-request.dto';
@@ -14,6 +16,8 @@ export class LinkController {
   constructor(private readonly linkService: LinkService) {}
 
   @Post()
+  @UseAuthGuard()
+  @SetOptionalRequestUserID()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '링크 생성' })
   @ApiCreatedResponse({ type: CreateLinkResponseDTO })

@@ -1,5 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 
 import { DataSource } from 'typeorm';
 
@@ -10,6 +10,7 @@ import { JwtConfigFactory } from 'src/config/providers/jwt-config.factory';
 
 import { Auth } from 'src/domain/entities/auth.entity';
 import { ServiceTokenResponseDTO } from './dto/service-token-response.dto';
+import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './types';
 
 @Injectable()
 export class AuthService {
@@ -40,6 +41,36 @@ export class AuthService {
         expiresIn: '1d',
       },
     );
+  }
+
+  public verifyAccessToken(accessToken: string, ignoreExpiration = false): VerifyAccessTokenResult {
+    const verifyResult: VerifyAccessTokenResult = {
+      id: null,
+      isExpired: ignoreExpiration,
+    };
+
+    try {
+      const { id } = this.jwtService.verify<AccessTokenPayload>(accessToken, {
+        secret: this.jwtConfigFactory.getAccessTokenSecret(),
+        ignoreExpiration,
+      });
+
+      verifyResult.id = id;
+    } catch (e) {
+      if (e.name === TokenExpiredError.name) {
+        return this.verifyAccessToken(accessToken, true);
+      }
+    }
+
+    return verifyResult;
+  }
+
+  public verifyRefreshToken(refreshToken: string, accessToken: string): boolean {
+    const { signature } = this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
+      secret: this.jwtConfigFactory.getRefreshTokenSecret(),
+    });
+
+    return signature === accessToken.split('.').pop();
   }
 
   private async saveAuth(accessToken: string, refreshToken: string): Promise<string> {

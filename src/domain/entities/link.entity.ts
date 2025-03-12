@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
-import { LINK_ID_LENGTH, LinkStatusCode, LinkType } from '../constants';
+import { LINK_ID_LENGTH } from '../constants';
+import { LinkStatusCode, LinkType } from '../enums';
 
 import { User } from './user.entity';
 import { LinkHitHistory } from './link-hit-history.entity';
