@@ -6,8 +6,10 @@ import { DateTime } from 'luxon';
 import { AppConfigFactory } from 'src/config/providers/app-config.factory';
 import { Link } from 'src/domain/entities/link.entity';
 import { LinkType } from 'src/domain/enums';
+import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
+import { ContextService } from 'src/context/context.service';
 
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
@@ -16,19 +18,23 @@ import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
 @Injectable()
 export class LinkService {
   constructor(
-    private readonly appConfigFactory: AppConfigFactory,
     private readonly dataSource: DataSource,
+    private readonly appConfigFactory: AppConfigFactory,
+    private readonly contextService: ContextService,
   ) {}
 
-  private async saveLink(url: string, type: LinkType, expiredAt: Date | null = null) {
-    return this.dataSource.transaction(async (em) => {
+  async createLink(body: CreateLinkRequestDTO) {
+    const userId = this.contextService.getRequestUserID();
+
+    const days = userId === null ? 7 : 30;
+    const expiredAt = body.type === LinkType.Free ? DateTime.local().plus({ days }).toJSDate() : null;
+
+    const link = await this.dataSource.transaction(async (em) => {
+      const linkStatisticsRepository = em.getRepository(LinkStatistics);
+      const linkStatistics = linkStatisticsRepository.create();
+
       const linkRepository = em.getRepository(Link);
-      const link = linkRepository.create({
-        url,
-        type,
-        expiredAt,
-        statistics: new LinkStatistics(),
-      });
+      const link = linkRepository.create({ url: body.url, type: body.type, expiredAt, statistics: linkStatistics });
 
       while (true) {
         link.id = link.createId();
@@ -47,15 +53,17 @@ export class LinkService {
 
       await linkRepository.insert(link);
 
+      if (userId) {
+        const userSpecificationRepository = em.getRepository(UserSpecification);
+        await userSpecificationRepository
+          .createQueryBuilder()
+          .update({ linkCount: () => 'linkCount + 1' })
+          .where({ userId })
+          .execute();
+      }
+
       return link;
     });
-  }
-
-  async createLink(body: CreateLinkRequestDTO) {
-    // TODO validation
-
-    const expiredAt = body.type === LinkType.Free ? DateTime.local().plus({ days: 7 }).toJSDate() : null;
-    const link = await this.saveLink(body.url, body.type, expiredAt);
 
     return new CreateLinkResponseDTO(this.appConfigFactory.getLinkBaseURL(), link);
   }

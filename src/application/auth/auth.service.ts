@@ -3,14 +3,15 @@ import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 
 import { DataSource } from 'typeorm';
 
+import { JwtConfigFactory } from 'src/config/providers/jwt-config.factory';
 import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
 import { KakaoAccount } from 'src/domain/entities/kakao-account.entity';
-import { User } from 'src/domain/entities/user.entity';
-import { JwtConfigFactory } from 'src/config/providers/jwt-config.factory';
-
 import { Auth } from 'src/domain/entities/auth.entity';
-import { ServiceTokenResponseDTO } from './dto/service-token-response.dto';
+import { User } from 'src/domain/entities/user.entity';
+import { UserSpecification } from 'src/domain/entities/user-specification.entity';
+
 import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './types';
+import { ServiceTokenResponseDTO } from './dto/service-token-response.dto';
 
 @Injectable()
 export class AuthService {
@@ -112,8 +113,10 @@ export class AuthService {
         profileImage: kakaoProfile.properties.profile_image,
       });
 
+      const userSpecificationRepository = this.dataSource.getRepository(UserSpecification);
+      const userSpecification = userSpecificationRepository.create();
       const userRepository = this.dataSource.getRepository(User);
-      const user = userRepository.create({ kakaoAccount });
+      const user = userRepository.create({ kakaoAccount, specification: userSpecification });
       await userRepository.insert(user);
 
       kakaoAccount.user = user;

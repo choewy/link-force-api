@@ -1,7 +1,8 @@
 import { CreateDateColumn, DeleteDateColumn, Entity, JoinTable, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { KakaoAccount } from './kakao-account.entity';
 import { Link } from './link.entity';
+import { KakaoAccount } from './kakao-account.entity';
+import { UserSpecification } from './user-specification.entity';
 
 @Entity({ name: 'user', comment: '사용자' })
 export class User {
@@ -11,6 +12,10 @@ export class User {
   @OneToOne(() => KakaoAccount, (e) => e.user, { nullable: true, cascade: true })
   @JoinTable()
   kakaoAccount: KakaoAccount | null;
+
+  @OneToOne(() => UserSpecification, (e) => e.user, { cascade: true })
+  @JoinTable()
+  specification: UserSpecification;
 
   @OneToMany(() => Link, (e) => e.user, { cascade: true })
   @JoinTable()

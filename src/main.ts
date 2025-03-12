@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 
@@ -44,6 +44,13 @@ async function bootstrap() {
       transformOptions: {
         enableCircularCheck: true,
         enableImplicitConversion: true,
+      },
+      exceptionFactory(errors) {
+        const error = errors.shift();
+        const constraints = error?.constraints ?? {};
+        const message = Object.values(constraints).shift() ?? '';
+
+        throw new BadRequestException(message);
       },
     }),
   );
