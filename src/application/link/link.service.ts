@@ -34,7 +34,13 @@ export class LinkService {
       const linkStatistics = linkStatisticsRepository.create();
 
       const linkRepository = em.getRepository(Link);
-      const link = linkRepository.create({ url: body.url, type: body.type, expiredAt, statistics: linkStatistics });
+      const link = linkRepository.create({
+        userId,
+        url: body.url,
+        type: body.type,
+        expiredAt,
+        statistics: linkStatistics,
+      });
 
       while (true) {
         link.id = link.createId();
@@ -88,16 +94,15 @@ export class LinkService {
     }
 
     await this.dataSource.transaction(async (em) => {
-      const linkStatisticsRepository = em.getRepository(LinkStatistics);
       const linkHitHistoryRepository = em.getRepository(LinkHitHistory);
+      await linkHitHistoryRepository.insert(linkHitHistoryRepository.create({ link }));
 
+      const linkStatisticsRepository = em.getRepository(LinkStatistics);
       await linkStatisticsRepository
         .createQueryBuilder()
         .update({ hitCount: () => `hitCount + 1` })
         .where({ linkId })
         .execute();
-
-      await linkHitHistoryRepository.insert(linkHitHistoryRepository.create({ link }));
     });
 
     return new HitLinkResponseDTO(link);

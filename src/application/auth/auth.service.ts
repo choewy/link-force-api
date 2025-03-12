@@ -115,9 +115,10 @@ export class AuthService {
 
       const userSpecificationRepository = this.dataSource.getRepository(UserSpecification);
       const userSpecification = userSpecificationRepository.create();
+
       const userRepository = this.dataSource.getRepository(User);
       const user = userRepository.create({ kakaoAccount, specification: userSpecification });
-      await userRepository.insert(user);
+      await userRepository.save(user);
 
       kakaoAccount.user = user;
     }

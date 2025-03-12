@@ -7,7 +7,7 @@ export class UserSpecification {
   @PrimaryColumn({ type: 'bigint', unsigned: true, comment: '사용자 PK' })
   userId: string;
 
-  @Column({ type: 'smallint', unsigned: true, default: 0, comment: '링크 수' })
+  @Column({ type: 'int', unsigned: true, default: 0, comment: '링크수' })
   linkCount: number;
 
   @OneToOne(() => User, (e) => e.specification, { onDelete: 'CASCADE' })
