@@ -1,5 +1,6 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 
@@ -16,10 +17,28 @@ async function bootstrap() {
 
   SwaggerModule.setup('api-docs', app, swaggerDocument);
 
-  app.enableCors({ origin: serverConfig.getCorsOrigin() });
   app.enableShutdownHooks();
+  app.enableCors({ origin: serverConfig.getCorsOrigin() });
 
-  await app.listen(serverConfig.getListenPort());
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      enableCircularCheck: true,
+      enableImplicitConversion: true,
+    }),
+  );
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      stopAtFirstError: true,
+      validateCustomDecorators: true,
+      transformOptions: {
+        enableCircularCheck: true,
+        enableImplicitConversion: true,
+      },
+    }),
+  );
+
+  await app.listen(serverConfig.getPort());
 }
 
 void bootstrap();

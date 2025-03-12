@@ -24,9 +24,9 @@ export class TypeOrmConfigFactory {
       password: this.configService.getOrThrow('DB_PASSWORD'),
       database: this.configService.getOrThrow('DB_DATABASE'),
       synchronize: nodeEnv.isLocal() && this.configService.get('DB_SYNCHRONIZE') === 'true',
-      namingStrategy: new SnakeNamingStrategy(),
-      entities: [`${process.cwd()}/**/*.entity.{js,ts}`],
       logging: nodeEnv.isLocal() ? ['query', 'info', 'error', 'warn'] : ['error', 'warn'],
+      entities: [`${process.cwd()}/dist/**/*.entity.{js,ts}`],
+      namingStrategy: new SnakeNamingStrategy(),
     };
   }
 }

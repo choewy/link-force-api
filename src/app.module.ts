@@ -7,6 +7,8 @@ import { AppService } from './app.service';
 import { ConfigFactoryModule } from './config/config-factory.module';
 import { TypeOrmConfigFactory } from './config/providers/typeorm-config.factory';
 
+import { LinkModule } from './application/link/link.module';
+
 @Module({
   imports: [
     ConfigFactoryModule,
@@ -16,6 +18,7 @@ import { TypeOrmConfigFactory } from './config/providers/typeorm-config.factory'
         return typeOrmConfigFactory.getTypeOrmModuleOptions();
       },
     }),
+    LinkModule,
   ],
   controllers: [AppController],
   providers: [AppService],
