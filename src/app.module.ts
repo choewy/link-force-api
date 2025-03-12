@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
+import { ContextModule } from './context/context.module';
 import { ConfigFactoryModule } from './config/config-factory.module';
 import { TypeOrmConfigFactory } from './config/providers/typeorm-config.factory';
 
@@ -12,6 +13,7 @@ import { LinkModule } from './application/link/link.module';
 
 @Module({
   imports: [
+    ContextModule,
     ConfigFactoryModule,
     TypeOrmModule.forRootAsync({
       inject: [TypeOrmConfigFactory],
