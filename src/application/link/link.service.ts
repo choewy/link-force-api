@@ -20,17 +20,14 @@ export class LinkService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async createLink(body: CreateLinkRequestDTO) {
-    const link = await this.dataSource.transaction(async (em) => {
+  private async saveLink(url: string, type: LinkType, expiredAt: Date | null = null) {
+    return this.dataSource.transaction(async (em) => {
       const linkRepository = em.getRepository(Link);
       const link = linkRepository.create();
 
-      // TODO 사용자 계정으로 링크 생성 시 결제 플랜에 따라 유효기간 카운팅
-      // TODO 무료 계정 비회원으로 링크 생성 시 7일 제한
-
-      link.type = LinkType.FreeTrial;
-      link.url = body.url;
-      link.expiredAt = DateTime.local().plus({ days: 7 }).toJSDate();
+      link.url = url;
+      link.type = type;
+      link.expiredAt = expiredAt;
 
       while (true) {
         link.id = link.createId();
@@ -54,6 +51,18 @@ export class LinkService {
 
       return link;
     });
+  }
+
+  async createLink(body: CreateLinkRequestDTO) {
+    // TODO validation
+
+    let expiredAt: Date | null = null;
+
+    if (body.type === LinkType.Free) {
+      expiredAt = DateTime.local().plus({ days: 7 }).toJSDate();
+    }
+
+    const link = await this.saveLink(body.url, body.type, expiredAt);
 
     return new CreateLinkResponseDTO(this.appConfigFactory.getLinkBaseURL(), link);
   }

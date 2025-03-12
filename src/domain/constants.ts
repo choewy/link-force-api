@@ -3,8 +3,8 @@ import { HttpStatus } from '@nestjs/common';
 export const LINK_ID_LENGTH = 7;
 
 export enum LinkType {
+  Free = 'free',
   Plan = 'plan',
-  FreeTrial = 'free-trial',
 }
 
 export enum LinkStatusCode {

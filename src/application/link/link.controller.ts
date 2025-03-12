@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { LinkService } from './link.service';
@@ -21,11 +21,11 @@ export class LinkController {
     return this.linkService.createLink(body);
   }
 
-  @Post('hit/:linkId')
+  @Post('hit')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '링크 접속' })
   @ApiOkResponse({ type: HitLinkResponseDTO })
-  async hitLink(@Param() param: HitLinkRequestDTO) {
-    return this.linkService.hitLink(param.linkId);
+  async hitLink(@Body() body: HitLinkRequestDTO) {
+    return this.linkService.hitLink(body.linkId);
   }
 }
