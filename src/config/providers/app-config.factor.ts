@@ -17,4 +17,8 @@ export class AppConfigFactory {
   public getAppVersion(): string {
     return this.configService.getOrThrow('npm_package_version');
   }
+
+  public getLinkBaseURL(): string {
+    return this.configService.getOrThrow('LINK_BASE_URL');
+  }
 }

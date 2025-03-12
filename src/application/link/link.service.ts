@@ -1,20 +1,22 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+
 import { DataSource } from 'typeorm';
 import { DateTime } from 'luxon';
 
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
+import { AppConfigFactory } from 'src/config/providers/app-config.factor';
 import { Link } from 'src/domain/entities/link.entity';
 import { LinkType } from 'src/domain/constants';
-import { ServerConfigFactory } from 'src/config/providers/server-config.factory';
-import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
+
+import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
+import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
 import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
 
 @Injectable()
 export class LinkService {
   constructor(
-    private readonly serverConfigFactory: ServerConfigFactory,
+    private readonly appConfigFactory: AppConfigFactory,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -36,8 +38,8 @@ export class LinkService {
         const hasId = await linkRepository.exists({
           select: { id: true },
           where: { id: link.id },
-          take: 1,
           lock: { mode: 'pessimistic_write' },
+          take: 1,
         });
 
         if (!hasId) {
@@ -53,7 +55,7 @@ export class LinkService {
       return link;
     });
 
-    return new CreateLinkResponseDTO(this.serverConfigFactory.getHost(), link);
+    return new CreateLinkResponseDTO(this.appConfigFactory.getLinkBaseURL(), link);
   }
 
   async hitLink(linkId: string) {
