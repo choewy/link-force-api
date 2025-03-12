@@ -9,6 +9,11 @@ export class KakaoLoginCallbackRequestDTO implements KakaoLoginCallbackParam {
   @IsNotEmpty()
   code: string;
 
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  state: string;
+
   @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
@@ -18,9 +23,4 @@ export class KakaoLoginCallbackRequestDTO implements KakaoLoginCallbackParam {
   @IsString()
   @IsOptional()
   error_description?: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  state?: string;
 }

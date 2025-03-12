@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 
 import { lastValueFrom } from 'rxjs';
-import qs from 'qs';
+import * as qs from 'qs';
 
 import { KakaoApiConfigFactory } from 'src/config/providers/kakao-api-config.factory';
 
-import { KakaoLoginURLRequestParam, KakaoUserProfileResponse, KakaoTokenRequestParam, KakaoTokenResponse } from './types';
+import { KakaoLoginURLRequestParam, KakaoProfileResponse, KakaoTokenRequestParam, KakaoTokenResponse } from './types';
 
 @Injectable()
 export class KakaoApiService {
@@ -15,12 +15,13 @@ export class KakaoApiService {
     private readonly httpService: HttpService,
   ) {}
 
-  public getLoginPageURL(): string {
+  public getLoginPageURL(redirectUrl: string): string {
     const url = 'https://kauth.kakao.com/oauth/authorize';
     const params = qs.stringify({
       response_type: 'code',
       client_id: this.kakaoApiConfigFactory.getLoginClientID(),
       redirect_uri: this.kakaoApiConfigFactory.getLoginRedirectURI(),
+      state: redirectUrl,
     } as KakaoLoginURLRequestParam);
 
     return [url, params].join('?');
@@ -44,11 +45,11 @@ export class KakaoApiService {
     return response.data;
   }
 
-  async getUserProfile(accessToken: string): Promise<KakaoUserProfileResponse> {
+  async getProfile(accessToken: string): Promise<KakaoProfileResponse> {
     const url = 'https://kapi.kakao.com/v2/user/me';
 
     const response = await lastValueFrom(
-      this.httpService.get<KakaoUserProfileResponse>(url, {
+      this.httpService.get<KakaoProfileResponse>(url, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
           Authorization: `Bearer ${accessToken}`,
@@ -56,6 +57,10 @@ export class KakaoApiService {
       }),
     );
 
-    return response.data;
+    const profile = response.data;
+
+    profile.id = String(profile.id);
+
+    return profile;
   }
 }

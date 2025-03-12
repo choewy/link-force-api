@@ -4,7 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
-import { AppConfigFactory } from './app-config.factor';
+import { AppConfigFactory } from './app-config.factory';
 
 @Injectable()
 export class TypeOrmConfigFactory {

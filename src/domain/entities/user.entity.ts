@@ -1,5 +1,6 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinTable, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { CreateDateColumn, DeleteDateColumn, Entity, JoinTable, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
+import { KakaoAccount } from './kakao-account.entity';
 import { Link } from './link.entity';
 
 @Entity({ name: 'user', comment: '사용자' })
@@ -7,8 +8,9 @@ export class User {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true, comment: '사용자 PK' })
   readonly id: string;
 
-  @Column({ type: 'varchar', length: 50, comment: '이름' })
-  name: string;
+  @OneToOne(() => KakaoAccount, (e) => e.user, { nullable: true, cascade: true })
+  @JoinTable()
+  kakaoAccount: KakaoAccount | null;
 
   @OneToMany(() => Link, (e) => e.user, { cascade: true })
   @JoinTable()

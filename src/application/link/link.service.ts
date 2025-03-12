@@ -3,7 +3,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { DateTime } from 'luxon';
 
-import { AppConfigFactory } from 'src/config/providers/app-config.factor';
+import { AppConfigFactory } from 'src/config/providers/app-config.factory';
 import { Link } from 'src/domain/entities/link.entity';
 import { LinkType } from 'src/domain/constants';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';

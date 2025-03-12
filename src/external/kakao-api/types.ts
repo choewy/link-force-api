@@ -2,14 +2,14 @@ export type KakaoLoginURLRequestParam = {
   response_type: 'code';
   client_id: string;
   redirect_uri: string;
-  state?: string;
+  state: string;
 };
 
 export type KakaoLoginCallbackParam = {
-  code?: string;
+  code: string;
+  state: string;
   error?: string;
   error_description?: string;
-  state?: string;
 };
 
 export type KakaoTokenRequestParam = {
@@ -30,8 +30,8 @@ export type KakaoTokenResponse = {
   id_token?: string;
 };
 
-export type KakaoUserProfileResponse = {
-  id: number;
+export type KakaoProfileResponse = {
+  id: string;
   connected_at: string;
   properties: {
     nickname: string;

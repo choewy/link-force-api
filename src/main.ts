@@ -4,7 +4,7 @@ import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 
-import { AppConfigFactory } from './config/providers/app-config.factor';
+import { AppConfigFactory } from './config/providers/app-config.factory';
 import { ServerConfigFactory } from './config/providers/server-config.factory';
 
 async function bootstrap() {
@@ -18,7 +18,10 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, swaggerDocument);
 
   app.enableShutdownHooks();
-  app.enableCors({ origin: serverConfig.getCorsOrigin() });
+  app.enableCors({
+    origin: serverConfig.getCorsOrigin(),
+    credentials: true,
+  });
 
   app.useGlobalInterceptors(
     new ClassSerializerInterceptor(app.get(Reflector), {
