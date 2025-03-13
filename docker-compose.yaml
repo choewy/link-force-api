@@ -19,6 +19,19 @@ services:
     networks:
       - link-force
 
+  redis:
+    image: redis/redis-stack-server:7.2.0-v10
+    container_name: link-force-redis
+    volumes:
+      - ./docker/redis/redis.conf/:/redis-stack.conf
+      - ../.link-force/redis/data/:/data
+      - ../.link-force/redis/log:/var/log/redis
+    ports:
+      - 6385:6379
+    restart: unless-stopped
+    networks:
+      - link-force
+
 networks:
   link-force:
     driver: bridge
