@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { AppConfigFactory } from './config/providers/app-config.factory';
+import { AppConfigFactory } from './common/config/providers/app-config.factory';
 import { AppProfileDTO } from './dto/app-profile.dto';
 
 @Injectable()

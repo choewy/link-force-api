@@ -2,7 +2,7 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { SetOptionalRequestUserID } from 'src/persistent/decorators';
-import { UseAuthGuard } from 'src/application/auth/auth.guard';
+import { UseAuthGuard } from 'src/common/auth/auth.guard';
 
 import { LinkService } from './link.service';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';

@@ -1,23 +1,24 @@
 import { Body, Controller, Get, HttpStatus, Post, Query, Res } from '@nestjs/common';
-import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
 
 import { Response } from 'express';
 import * as qs from 'qs';
 
+import { AuthService } from 'src/common/auth/auth.service';
 import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
 
-import { AuthService } from './auth.service';
+import { SignService } from './sign.service';
 import { KakaoLoginCallbackRequestDTO } from './dto/kakao-login-callback-request.dto';
-import { KakaoLoginPageRequestDTO } from './dto/kakao-login-page-request.dto';
-import { ServiceTokenRequestDTO } from './dto/service-token-request.dto';
 import { ServiceTokenResponseDTO } from './dto/service-token-response.dto';
+import { ServiceTokenRequestDTO } from './dto/service-token-request.dto';
+import { KakaoLoginPageRequestDTO } from './dto/kakao-login-page-request.dto';
 
-@ApiTags('인증/인가')
-@Controller('auth')
-export class AuthController {
+@Controller('sign')
+export class SignController {
   constructor(
-    private readonly authService: AuthService,
     private readonly kakaoApiService: KakaoApiService,
+    private readonly authService: AuthService,
+    private readonly signService: SignService,
   ) {}
 
   @Get('kakao')
@@ -31,7 +32,7 @@ export class AuthController {
   @Get('kakao/callback')
   @ApiOperation({ summary: '카카오 로그인 Callback', deprecated: true })
   async kakaoLoginCallback(@Query() queryParam: KakaoLoginCallbackRequestDTO, @Res() response: Response) {
-    const code = await this.authService.signInWithKakao(queryParam.code);
+    const code = await this.signService.signInWithKakao(queryParam.code);
     const url = [queryParam.state, qs.stringify({ code })].join('?');
 
     response.redirect(HttpStatus.MOVED_PERMANENTLY, url);
@@ -41,6 +42,6 @@ export class AuthController {
   @ApiOperation({ summary: '서비스 토큰 발급' })
   @ApiCreatedResponse({ type: ServiceTokenResponseDTO })
   async getToken(@Body() body: ServiceTokenRequestDTO) {
-    return this.authService.getToken(body.code);
+    return this.authService.getAuth(body.code);
   }
 }

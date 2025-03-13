@@ -4,12 +4,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
-import { ContextModule } from './context/context.module';
-import { ConfigFactoryModule } from './config/config-factory.module';
-import { TypeOrmConfigFactory } from './config/providers/typeorm-config.factory';
+import { ContextModule } from './common/context/context.module';
+import { ConfigFactoryModule } from './common/config/config-factory.module';
+import { TypeOrmConfigFactory } from './common/config/providers/typeorm-config.factory';
 
-import { AuthModule } from './application/auth/auth.module';
+import { AuthModule } from './common/auth/auth.module';
 import { LinkModule } from './application/link/link.module';
+import { SignModule } from './application/sign/sign.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { LinkModule } from './application/link/link.module';
       },
     }),
     AuthModule,
+    SignModule,
     LinkModule,
   ],
   controllers: [AppController],

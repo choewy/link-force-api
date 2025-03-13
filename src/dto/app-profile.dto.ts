@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { NodeEnv } from 'src/config/classes/node-env';
+import { NodeEnv } from 'src/common/config/classes/node-env';
 
 export class AppProfileDTO {
   @ApiProperty({ type: String, description: '앱 이름' })

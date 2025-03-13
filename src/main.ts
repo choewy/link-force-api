@@ -4,8 +4,8 @@ import { BadRequestException, ClassSerializerInterceptor, ValidationPipe } from 
 
 import { AppModule } from './app.module';
 
-import { AppConfigFactory } from './config/providers/app-config.factory';
-import { ServerConfigFactory } from './config/providers/server-config.factory';
+import { AppConfigFactory } from './common/config/providers/app-config.factory';
+import { ServerConfigFactory } from './common/config/providers/server-config.factory';
 import { RequestHeader } from './persistent/enums';
 
 async function bootstrap() {

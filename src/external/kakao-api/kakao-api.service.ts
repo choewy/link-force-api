@@ -4,7 +4,7 @@ import { HttpService } from '@nestjs/axios';
 import { lastValueFrom } from 'rxjs';
 import * as qs from 'qs';
 
-import { KakaoApiConfigFactory } from 'src/config/providers/kakao-api-config.factory';
+import { KakaoApiConfigFactory } from 'src/common/config/providers/kakao-api-config.factory';
 
 import { KakaoLoginURLRequestParam, KakaoProfileResponse, KakaoTokenRequestParam, KakaoTokenResponse } from './types';
 

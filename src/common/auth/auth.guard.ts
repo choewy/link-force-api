@@ -4,7 +4,7 @@ import { Reflector } from '@nestjs/core';
 import { Request, Response } from 'express';
 
 import { MetadataKey, RequestHeader, ResponseHeader } from 'src/persistent/enums';
-import { ContextService } from 'src/context/context.service';
+import { ContextService } from 'src/common/context/context.service';
 
 import { AuthService } from './auth.service';
 import { ApiBasicAuth, ApiBearerAuth } from '@nestjs/swagger';

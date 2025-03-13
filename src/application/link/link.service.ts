@@ -3,13 +3,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { DateTime } from 'luxon';
 
-import { AppConfigFactory } from 'src/config/providers/app-config.factory';
+import { AppConfigFactory } from 'src/common/config/providers/app-config.factory';
 import { Link } from 'src/domain/entities/link.entity';
 import { LinkType } from 'src/domain/enums';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
-import { ContextService } from 'src/context/context.service';
+import { ContextService } from 'src/common/context/context.service';
 
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
