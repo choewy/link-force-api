@@ -15,13 +15,13 @@ export class KakaoApiService {
     private readonly httpService: HttpService,
   ) {}
 
-  public getLoginPageURL(redirectUrl: string): string {
+  public getLoginPageURL(state: string): string {
     const url = 'https://kauth.kakao.com/oauth/authorize';
     const params = qs.stringify({
       response_type: 'code',
       client_id: this.kakaoApiConfigFactory.getLoginClientID(),
       redirect_uri: this.kakaoApiConfigFactory.getLoginRedirectURI(),
-      state: redirectUrl,
+      state,
     } as KakaoLoginURLRequestParam);
 
     return [url, params].join('?');

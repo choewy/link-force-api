@@ -8,6 +8,9 @@ import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { User } from 'src/domain/entities/user.entity';
 
+import { SignPlatform } from './enums';
+import { SignInPageURLResponseDTO } from './dto/sign-in-page-url-response.dto';
+
 @Injectable()
 export class SignService {
   constructor(
@@ -15,6 +18,18 @@ export class SignService {
     private readonly authService: AuthService,
     private readonly kakaoApiService: KakaoApiService,
   ) {}
+
+  public getSignInPageURL(platform: SignPlatform, state: string) {
+    let url = '';
+
+    switch (platform) {
+      case SignPlatform.Kakao:
+        url = this.kakaoApiService.getLoginPageURL(state);
+        break;
+    }
+
+    return new SignInPageURLResponseDTO(url);
+  }
 
   async signInWithKakao(code: string) {
     const tokenResponse = await this.kakaoApiService.getToken(code);

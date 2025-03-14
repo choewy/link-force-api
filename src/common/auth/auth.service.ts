@@ -7,6 +7,7 @@ import { JwtConfigFactory } from 'src/common/config/providers/jwt-config.factory
 import { Auth } from 'src/domain/entities/auth.entity';
 
 import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './types';
+import { AuthDTO } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
@@ -68,15 +69,15 @@ export class AuthService {
     return signature === accessToken.split('.').pop();
   }
 
-  async saveAuth(accessToken: string, refreshToken: string): Promise<string> {
+  async saveAuth(accessToken: string, refreshToken: string): Promise<AuthDTO> {
     const authRepository = this.dataSource.getRepository(Auth);
     const auth = authRepository.create({ accessToken, refreshToken });
     await authRepository.insert(auth);
 
-    return auth.id;
+    return new AuthDTO(auth);
   }
 
-  async getAuth(code: string) {
+  async getAuth(code: string): Promise<AuthDTO> {
     const authRepository = this.dataSource.getRepository(Auth);
     const auth = await authRepository.findOneBy({ id: code });
     await authRepository.delete({ id: code });
@@ -85,6 +86,6 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    return auth;
+    return new AuthDTO(auth);
   }
 }
