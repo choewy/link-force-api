@@ -10,8 +10,8 @@ export class RedisServivce implements OnModuleDestroy {
     this.redis.disconnect(false);
   }
 
-  private from(value: string | null): object | null {
-    return value == null ? null : (JSON.parse(value) as object);
+  private from<T>(value: string | null): T | null {
+    return value == null ? null : (JSON.parse(value) as T);
   }
 
   private to<T>(value: T): string {
@@ -26,8 +26,8 @@ export class RedisServivce implements OnModuleDestroy {
     }
   }
 
-  async getValue(key: string): Promise<object | null> {
-    return this.from(await this.redis.get(key));
+  async getValue<T>(key: string): Promise<T | null> {
+    return this.from<T>(await this.redis.get(key));
   }
 
   async getHashValue(key: string, fieldName: string): Promise<string | null> {
