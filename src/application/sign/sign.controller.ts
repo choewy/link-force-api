@@ -4,45 +4,38 @@ import { ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestj
 import { Response } from 'express';
 import * as qs from 'qs';
 
-import { AuthService } from 'src/common/auth/auth.service';
-
 import { SignService } from './sign.service';
 import { SignInPageURLRequestBodyDTO, SignInPageURLRequestParamDTO } from './dto/sign-in-page-url-request.dto';
 import { SignInPageURLResponseDTO } from './dto/sign-in-page-url-response.dto';
-import { ServiceTokenResponseDTO } from './dto/service-token-response.dto';
-import { ServiceTokenRequestDTO } from './dto/service-token-request.dto';
-import { KakaoLoginCallbackRequestDTO } from './dto/kakao-login-callback-request.dto';
+import { SignTokenResponseDTO } from './dto/sign-token-response.dto';
+import { SignTokenRequestDTO } from './dto/sign-token-request.dto';
+import { SignWithKakaoRequestDTO } from './dto/sign-with-kakao-request.dto';
 
 @ApiTags('인증')
 @Controller('sign')
 export class SignController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly signService: SignService,
-  ) {}
+  constructor(private readonly signService: SignService) {}
 
-  @Post(':platform')
+  @Post(':platform/login')
   @ApiOperation({ summary: '소셜 로그인 페이지 URL' })
   @ApiOkResponse({ type: SignInPageURLResponseDTO })
   getSignInPageURL(@Param() param: SignInPageURLRequestParamDTO, @Body() body: SignInPageURLRequestBodyDTO) {
     return this.signService.getSignInPageURL(param.platform, body.state);
   }
 
-  // FIXME Redis
-  @Get('kakao/callback')
-  @ApiOperation({ summary: '카카오 로그인 Callback' })
-  async kakaoLoginCallback(@Query() queryParam: KakaoLoginCallbackRequestDTO, @Res() response: Response) {
-    const code = await this.signService.signInWithKakao(queryParam.code);
+  @Get('kakao')
+  @ApiOperation({ summary: '카카오 계정으로 인증' })
+  async signWithKakao(@Query() queryParam: SignWithKakaoRequestDTO, @Res() response: Response) {
+    const code = await this.signService.signWithKakao(queryParam.code);
     const url = [queryParam.state, qs.stringify({ code })].join('?');
 
     response.redirect(HttpStatus.MOVED_PERMANENTLY, url);
   }
 
-  // FIXME Redis
   @Post('token')
-  @ApiOperation({ summary: '서비스 토큰 발급' })
-  @ApiCreatedResponse({ type: ServiceTokenResponseDTO })
-  async getToken(@Body() body: ServiceTokenRequestDTO) {
-    return this.authService.getAuth(body.code);
+  @ApiOperation({ summary: '인증 토큰 발급' })
+  @ApiCreatedResponse({ type: SignTokenResponseDTO })
+  async getSignToken(@Body() body: SignTokenRequestDTO) {
+    return this.signService.getSignToken(body.id);
   }
 }

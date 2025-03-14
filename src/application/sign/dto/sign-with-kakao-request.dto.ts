@@ -1,9 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import { KakaoLoginCallbackParam } from 'src/external/kakao-api/types';
 
-export class KakaoLoginCallbackRequestDTO implements KakaoLoginCallbackParam {
+export class SignWithKakaoRequestDTO implements KakaoLoginCallbackParam {
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()

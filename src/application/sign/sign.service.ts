@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { DataSource } from 'typeorm';
 
@@ -10,6 +10,7 @@ import { User } from 'src/domain/entities/user.entity';
 
 import { SignPlatform } from './enums';
 import { SignInPageURLResponseDTO } from './dto/sign-in-page-url-response.dto';
+import { SignTokenResponseDTO } from './dto/sign-token-response.dto';
 
 @Injectable()
 export class SignService {
@@ -31,7 +32,7 @@ export class SignService {
     return new SignInPageURLResponseDTO(url);
   }
 
-  async signInWithKakao(code: string) {
+  async signWithKakao(code: string) {
     const tokenResponse = await this.kakaoApiService.getToken(code);
     const kakaoProfile = await this.kakaoApiService.getProfile(tokenResponse.access_token);
 
@@ -63,6 +64,16 @@ export class SignService {
     const accessToken = this.authService.issueAccessToken(kakaoAccount.user.id);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
 
-    return this.authService.saveAuth(accessToken, refreshToken);
+    return this.authService.setToken(accessToken, refreshToken);
+  }
+
+  async getSignToken(id: string) {
+    const tokens = await this.authService.getToken(id);
+
+    if (!tokens) {
+      throw new UnauthorizedException();
+    }
+
+    return new SignTokenResponseDTO(tokens.accessToken, tokens.refreshToken);
   }
 }

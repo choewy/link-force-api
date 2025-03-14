@@ -3,15 +3,15 @@ import { DynamicModule, Provider } from '@nestjs/common';
 import Redis from 'ioredis';
 
 import { RedisModuleAsyncOptions } from './types';
-import { RedisServivce } from './redis.service';
+import { RedisService } from './redis.service';
 
 export class RedisModule {
   public static forRootAsync(asyncOptions: RedisModuleAsyncOptions): DynamicModule {
     const RedisProvider: Provider = {
       inject: asyncOptions.inject,
-      provide: RedisServivce,
+      provide: RedisService,
       async useFactory(...args: unknown[]) {
-        return new RedisServivce(new Redis(await asyncOptions.useFactory(...args)));
+        return new RedisService(new Redis(await asyncOptions.useFactory(...args)));
       },
     };
 

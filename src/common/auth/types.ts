@@ -8,3 +8,8 @@ export type VerifyAccessTokenResult = {
   id: string | null;
   isExpired: boolean;
 };
+
+export type AuthToken = {
+  accessToken: string;
+  refreshToken: string;
+};

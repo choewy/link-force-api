@@ -1,20 +1,19 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 
-import { DataSource } from 'typeorm';
+import { v4 } from 'uuid';
 
 import { JwtConfigFactory } from 'src/common/config/providers/jwt-config.factory';
-import { Auth } from 'src/domain/entities/auth.entity';
 
-import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './types';
-import { AuthDTO } from './dto/auth.dto';
+import { AccessTokenPayload, AuthToken, RefreshTokenPayload, VerifyAccessTokenResult } from './types';
+import { RedisService } from '../redis/redis.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly dataSource: DataSource,
     private readonly jwtService: JwtService,
     private readonly jwtConfigFactory: JwtConfigFactory,
+    private readonly redisService: RedisService,
   ) {}
 
   public issueAccessToken(id: string) {
@@ -69,23 +68,25 @@ export class AuthService {
     return signature === accessToken.split('.').pop();
   }
 
-  async saveAuth(accessToken: string, refreshToken: string): Promise<AuthDTO> {
-    const authRepository = this.dataSource.getRepository(Auth);
-    const auth = authRepository.create({ accessToken, refreshToken });
-    await authRepository.insert(auth);
-
-    return new AuthDTO(auth);
+  private createTokenKey(id: string) {
+    return ['jwt', id].join(':');
   }
 
-  async getAuth(code: string): Promise<AuthDTO> {
-    const authRepository = this.dataSource.getRepository(Auth);
-    const auth = await authRepository.findOneBy({ id: code });
-    await authRepository.delete({ id: code });
+  async setToken(accessToken: string, refreshToken: string): Promise<string> {
+    const id = v4();
+    const key = this.createTokenKey(id);
 
-    if (!auth) {
-      throw new UnauthorizedException();
-    }
+    await this.redisService.setValue<AuthToken>(key, { accessToken, refreshToken }, 180);
 
-    return new AuthDTO(auth);
+    return id;
+  }
+
+  async getToken(id: string): Promise<AuthToken | null> {
+    const key = this.createTokenKey(id);
+    const token = (await this.redisService.getValue<AuthToken>(key)) ?? null;
+
+    await this.redisService.removeValue(key);
+
+    return token;
   }
 }
