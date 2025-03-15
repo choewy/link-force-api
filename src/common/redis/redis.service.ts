@@ -18,6 +18,10 @@ export class RedisService implements OnModuleDestroy {
     return JSON.stringify(value, null, 2);
   }
 
+  async has(key: string) {
+    return (await this.redis.exists(key)) > 0;
+  }
+
   async getValue<T>(key: string): Promise<T | null> {
     return this.from<T>(await this.redis.get(key));
   }

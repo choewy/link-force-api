@@ -1,10 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
 import { NodeEnv } from '../classes/node-env';
 
 @Injectable()
 export class AppConfigFactory {
   constructor(private readonly configService: ConfigService) {}
+
+  public getProcessID() {
+    return process.pid;
+  }
 
   public getNodeEnv(): NodeEnv {
     return new NodeEnv(this.configService.getOrThrow('NODE_ENV'));

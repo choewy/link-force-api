@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
-import { DataSource } from 'typeorm';
+import { And, DataSource, In, LessThanOrEqual } from 'typeorm';
 import { DateTime } from 'luxon';
 
 import { AppConfigFactory } from 'src/common/config/providers/app-config.factory';
@@ -10,6 +11,8 @@ import { UserSpecification } from 'src/domain/entities/user-specification.entity
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
 import { ContextService } from 'src/common/context/context.service';
+import { RedisService } from 'src/common/redis/redis.service';
+import { TimerService } from 'src/common/timer/timer.service';
 
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
@@ -21,6 +24,8 @@ export class LinkService {
     private readonly dataSource: DataSource,
     private readonly appConfigFactory: AppConfigFactory,
     private readonly contextService: ContextService,
+    private readonly redisService: RedisService,
+    private readonly timerService: TimerService,
   ) {}
 
   async createLink(body: CreateLinkRequestDTO) {
@@ -116,5 +121,46 @@ export class LinkService {
       const linkStatisticsRepository = em.getRepository(LinkStatistics);
       await linkStatisticsRepository.softDelete({ linkId: id });
     });
+  }
+
+  private createDeleteCronKey() {
+    return ['cron', 'delete-link'].join(':');
+  }
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  async handleDeleteCron() {
+    const sleepSeconds = Math.floor(Math.random() * 2 + 1);
+    await this.timerService.sleep(sleepSeconds);
+
+    const key = this.createDeleteCronKey();
+
+    if (await this.redisService.has(key)) {
+      return;
+    }
+
+    await this.redisService.setValue(key, {
+      processId: this.appConfigFactory.getProcessID(),
+      startedAt: new Date(),
+    });
+
+    await this.dataSource.transaction(async (em) => {
+      const linkRepository = em.getRepository(Link);
+      const links = await linkRepository.find({
+        select: { id: true },
+        where: { expiredAt: And(LessThanOrEqual(new Date())) },
+      });
+
+      if (links.length === 0) {
+        return;
+      }
+
+      const linkIds = links.map((link) => link.id);
+      await linkRepository.softDelete({ id: In(linkIds) });
+
+      const linkStatisticsRepository = em.getRepository(LinkStatistics);
+      await linkStatisticsRepository.softDelete({ linkId: In(linkIds) });
+    });
+
+    await this.redisService.removeValue(key);
   }
 }
