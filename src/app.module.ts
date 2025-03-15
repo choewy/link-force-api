@@ -13,6 +13,7 @@ import { RedisConfigFactory } from './common/config/providers/redis-config.facto
 
 import { LinkModule } from './application/link/link.module';
 import { SignModule } from './application/sign/sign.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { SignModule } from './application/sign/sign.module';
         return redisConfigFactory.getRedisModuleOptions();
       },
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
     SignModule,
     LinkModule,

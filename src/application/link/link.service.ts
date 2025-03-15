@@ -107,4 +107,14 @@ export class LinkService {
 
     return new HitLinkResponseDTO(link);
   }
+
+  async deleteLink(id: string) {
+    await this.dataSource.transaction(async (em) => {
+      const linkRepository = em.getRepository(Link);
+      await linkRepository.softDelete({ id });
+
+      const linkStatisticsRepository = em.getRepository(LinkStatistics);
+      await linkStatisticsRepository.softDelete({ linkId: id });
+    });
+  }
 }
