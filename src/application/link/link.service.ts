@@ -6,7 +6,7 @@ import { DateTime } from 'luxon';
 
 import { AppConfigFactory } from 'src/common/config/providers/app-config.factory';
 import { Link } from 'src/domain/entities/link.entity';
-import { LinkType } from 'src/domain/enums';
+import { LinkStatus, LinkType } from 'src/domain/enums';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
@@ -17,6 +17,7 @@ import { TimerService } from 'src/common/timer/timer.service';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
 import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
+import { UpdateLinkRequestBodyDTO } from './dto/update-link-request.dto';
 
 @Injectable()
 export class LinkService {
@@ -79,14 +80,14 @@ export class LinkService {
     return new CreateLinkResponseDTO(this.appConfigFactory.getLinkBaseURL(), link);
   }
 
-  async hitLink(linkId: string) {
+  async hitLink(id: string) {
     const linkRepository = this.dataSource.getRepository(Link);
     const link = await linkRepository.findOne({
       select: { id: true, url: true, statusCode: true },
-      where: { id: linkId },
+      where: { id },
     });
 
-    if (!link) {
+    if (!link || link.status === LinkStatus.Disabled) {
       throw new NotFoundException();
     }
 
@@ -106,16 +107,39 @@ export class LinkService {
       await linkStatisticsRepository
         .createQueryBuilder()
         .update({ hitCount: () => `hitCount + 1` })
-        .where({ linkId })
+        .where({ linkId: id })
         .execute();
     });
 
     return new HitLinkResponseDTO(link);
   }
 
+  async updateLink(id: string, body: UpdateLinkRequestBodyDTO) {
+    const linkRepository = this.dataSource.getRepository(Link);
+    const link = await linkRepository.findOneBy({ id });
+
+    if (!link || link.userId !== this.contextService.getRequestUserID()) {
+      return;
+    }
+
+    await linkRepository.update(
+      { id },
+      {
+        status: body.status && body.status !== link.status ? body.status : undefined,
+        statusCode: body.statusCode && body.statusCode !== link.statusCode ? body.statusCode : undefined,
+      },
+    );
+  }
+
   async deleteLink(id: string) {
     await this.dataSource.transaction(async (em) => {
       const linkRepository = em.getRepository(Link);
+      const link = await linkRepository.findOneBy({ id });
+
+      if (!link || link.userId !== this.contextService.getRequestUserID()) {
+        return;
+      }
+
       await linkRepository.softDelete({ id });
 
       const linkStatisticsRepository = em.getRepository(LinkStatistics);

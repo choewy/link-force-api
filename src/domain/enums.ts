@@ -9,3 +9,8 @@ export enum LinkStatusCode {
   Found = HttpStatus.FOUND,
   Permanently = HttpStatus.MOVED_PERMANENTLY,
 }
+
+export enum LinkStatus {
+  Activated = 'activated',
+  Disabled = 'disabled',
+}
