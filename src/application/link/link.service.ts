@@ -4,12 +4,12 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { And, DataSource, In, LessThanOrEqual } from 'typeorm';
 import { DateTime } from 'luxon';
 
-import { AppConfigFactory } from 'src/common/config/providers/app-config.factory';
 import { Link } from 'src/domain/entities/link.entity';
 import { LinkStatus, LinkType } from 'src/domain/enums';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
+import { AppConfigFactory } from 'src/common/config/providers/app-config.factory';
 import { ContextService } from 'src/common/context/context.service';
 import { RedisService } from 'src/common/redis/redis.service';
 import { TimerService } from 'src/common/timer/timer.service';
@@ -67,16 +67,12 @@ export class LinkService {
     const expiredAt = body.type === LinkType.Free ? DateTime.local().plus({ days }).toJSDate() : null;
 
     const link = await this.dataSource.transaction(async (em) => {
-      const linkStatisticsRepository = em.getRepository(LinkStatistics);
-      const linkStatistics = linkStatisticsRepository.create();
-
       const linkRepository = em.getRepository(Link);
       const link = linkRepository.create({
         userId,
         url: body.url,
         type: body.type,
         expiredAt,
-        statistics: linkStatistics,
       });
 
       while (true) {
@@ -95,6 +91,9 @@ export class LinkService {
       }
 
       await linkRepository.insert(link);
+
+      const linkStatisticsRepository = em.getRepository(LinkStatistics);
+      await linkStatisticsRepository.insert({ linkId: link.id });
 
       if (userId) {
         const userSpecificationRepository = em.getRepository(UserSpecification);

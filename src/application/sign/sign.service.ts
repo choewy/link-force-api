@@ -1,6 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { DataSource } from 'typeorm';
+import * as qs from 'qs';
 
 import { AuthService } from 'src/common/auth/auth.service';
 import { KakaoAccount } from 'src/domain/entities/kakao-account.entity';
@@ -11,6 +12,7 @@ import { User } from 'src/domain/entities/user.entity';
 import { SignPlatform } from './enums';
 import { SignInPageURLResponseDTO } from './dto/sign-in-page-url-response.dto';
 import { SignTokenResponseDTO } from './dto/sign-token-response.dto';
+import { SignWithKakaoRequestDTO } from './dto/sign-with-kakao-request.dto';
 
 @Injectable()
 export class SignService {
@@ -32,8 +34,8 @@ export class SignService {
     return new SignInPageURLResponseDTO(url);
   }
 
-  async signWithKakao(code: string) {
-    const tokenResponse = await this.kakaoApiService.getToken(code);
+  async signWithKakao(param: SignWithKakaoRequestDTO) {
+    const tokenResponse = await this.kakaoApiService.getToken(param.code);
     const kakaoProfile = await this.kakaoApiService.getProfile(tokenResponse.access_token);
 
     const kakaoAccountRepository = this.dataSource.getRepository(KakaoAccount);
@@ -64,11 +66,14 @@ export class SignService {
     const accessToken = this.authService.issueAccessToken(kakaoAccount.user.id);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
 
-    return this.authService.setToken(accessToken, refreshToken);
+    const authKey = await this.authService.setToken(accessToken, refreshToken);
+    const redirectURL = [param.state, qs.stringify({ authKey })].join('?');
+
+    return redirectURL;
   }
 
-  async getSignToken(id: string) {
-    const tokens = await this.authService.getToken(id);
+  async getSignToken(authKey: string) {
+    const tokens = await this.authService.getToken(authKey);
 
     if (!tokens) {
       throw new UnauthorizedException();

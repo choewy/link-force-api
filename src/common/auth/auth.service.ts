@@ -68,21 +68,21 @@ export class AuthService {
     return signature === accessToken.split('.').pop();
   }
 
-  private createTokenKey(id: string) {
-    return ['jwt', id].join(':');
+  private createTokenKey(authKey: string) {
+    return ['jwt', authKey].join(':');
   }
 
   async setToken(accessToken: string, refreshToken: string): Promise<string> {
-    const id = v4();
-    const key = this.createTokenKey(id);
+    const authKey = v4();
+    const key = this.createTokenKey(authKey);
 
     await this.redisService.setValue<AuthToken>(key, { accessToken, refreshToken }, 180);
 
-    return id;
+    return authKey;
   }
 
-  async getToken(id: string): Promise<AuthToken | null> {
-    const key = this.createTokenKey(id);
+  async getToken(authKey: string): Promise<AuthToken | null> {
+    const key = this.createTokenKey(authKey);
     const token = (await this.redisService.getValue<AuthToken>(key)) ?? null;
 
     await this.redisService.removeValue(key);

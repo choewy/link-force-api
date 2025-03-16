@@ -6,5 +6,5 @@ export class SignTokenRequestDTO {
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
-  id: string;
+  authKey: string;
 }

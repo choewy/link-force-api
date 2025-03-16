@@ -28,6 +28,6 @@ export class LinkDTO {
     this.url = link.url;
     this.statusCode = link.statusCode;
     this.expiredAt = link.expiredAt;
-    this.hitCount = link.statistics.hitCount;
+    this.hitCount = link.statistics?.hitCount;
   }
 }
