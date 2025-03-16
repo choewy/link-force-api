@@ -18,6 +18,8 @@ import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
 import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
 import { UpdateLinkRequestBodyDTO } from './dto/update-link-request.dto';
+import { GetLinksRequestDTO } from './dto/get-links-request.dto';
+import { GetLinksResponseDTO } from './dto/get-links-response.dto';
 
 @Injectable()
 export class LinkService {
@@ -28,6 +30,20 @@ export class LinkService {
     private readonly redisService: RedisService,
     private readonly timerService: TimerService,
   ) {}
+
+  async getLinks(param: GetLinksRequestDTO) {
+    const linkRepository = this.dataSource.getRepository(Link);
+    const [links, count] = await linkRepository.findAndCount({
+      relations: { statistics: true },
+      where: {
+        userId: this.contextService.getRequestUserID() ?? '0',
+      },
+      skip: param.skip,
+      take: param.take,
+    });
+
+    return new GetLinksResponseDTO(links, count);
+  }
 
   async createLink(body: CreateLinkRequestDTO) {
     const userId = this.contextService.getRequestUserID();

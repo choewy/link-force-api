@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, HttpCode, HttpStatus, Param, Patch, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { SetOptionalRequestUserID, SetRequiredRequestUserID } from 'src/persistent/decorators';
@@ -11,11 +11,22 @@ import { HitLinkRequestDTO } from './dto/hit-link-request.dto';
 import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
 import { DeleteLinkRequestDTO } from './dto/delete-link-request.dto';
 import { UpdateLinkRequestBodyDTO, UpdateLinkRequestParamDTO } from './dto/update-link-request.dto';
+import { GetLinksRequestDTO } from './dto/get-links-request.dto';
+import { GetLinksResponseDTO } from './dto/get-links-response.dto';
 
 @ApiTags('링크')
 @Controller('links')
 export class LinkController {
   constructor(private readonly linkService: LinkService) {}
+
+  @Get()
+  @UseAuthGuard()
+  @SetRequiredRequestUserID()
+  @ApiOperation({ summary: '링크 목록 조회' })
+  @ApiOkResponse({ type: GetLinksResponseDTO })
+  async getLinks(@Query() queryParam: GetLinksRequestDTO) {
+    return this.linkService.getLinks(queryParam);
+  }
 
   @Post()
   @UseAuthGuard()

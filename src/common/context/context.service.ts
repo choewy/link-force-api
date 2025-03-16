@@ -29,7 +29,7 @@ export class ContextService {
     this.clsService.set(ContextKey.RequestUserID, id);
   }
 
-  getRequestUserID(): string | null {
-    return this.clsService.get(ContextKey.RequestUserID) ?? null;
+  getRequestUserID(): string | undefined {
+    return this.clsService.get(ContextKey.RequestUserID) ?? undefined;
   }
 }
