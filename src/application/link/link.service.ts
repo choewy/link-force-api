@@ -10,6 +10,7 @@ import { LinkStatus, LinkType } from 'src/domain/enums';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
+import { RequestHeader } from 'src/persistent/enums';
 import { AppConfigFactory } from 'src/common/config/providers/app-config.factory';
 import { ContextService } from 'src/common/context/context.service';
 import { RedisService } from 'src/common/redis/redis.service';
@@ -20,7 +21,6 @@ import { GetLinksRequestDTO } from './dto/get-links-request.dto';
 import { GetLinksResponseDTO } from './dto/get-links-response.dto';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
-import { RequestHeader } from 'src/persistent/enums';
 
 @Injectable()
 export class LinkService {
@@ -168,7 +168,6 @@ export class LinkService {
       }
 
       await linkRepository.softDelete({ id });
-
       const linkStatisticsRepository = em.getRepository(LinkStatistics);
       await linkStatisticsRepository.softDelete({ linkId: id });
     });
