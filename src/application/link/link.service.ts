@@ -17,9 +17,7 @@ import { TimerService } from 'src/common/timer/timer.service';
 import { LinkDTO } from './dto/link.dto';
 import { GetLinksRequestDTO } from './dto/get-links-request.dto';
 import { GetLinksResponseDTO } from './dto/get-links-response.dto';
-import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
-import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
 import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
 
 @Injectable()
@@ -107,13 +105,13 @@ export class LinkService {
       return link;
     });
 
-    return new CreateLinkResponseDTO(this.appConfigFactory.getLinkBaseURL(), link);
+    return new LinkDTO(link);
   }
 
   async hitLink(id: string) {
     const linkRepository = this.dataSource.getRepository(Link);
     const link = await linkRepository.findOne({
-      select: { id: true, url: true, statusCode: true },
+      select: { id: true, url: true },
       where: { id },
     });
 
@@ -141,7 +139,7 @@ export class LinkService {
         .execute();
     });
 
-    return new HitLinkResponseDTO(link);
+    return new LinkDTO(link);
   }
 
   async updateLink(id: string, body: UpdateLinkRequestDTO) {
@@ -152,13 +150,7 @@ export class LinkService {
       return;
     }
 
-    await linkRepository.update(
-      { id },
-      {
-        status: body.status && body.status !== link.status ? body.status : undefined,
-        statusCode: body.statusCode && body.statusCode !== link.statusCode ? body.statusCode : undefined,
-      },
-    );
+    await linkRepository.update({ id }, { status: body.status && body.status !== link.status ? body.status : undefined });
   }
 
   async deleteLink(id: string) {

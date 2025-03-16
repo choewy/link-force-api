@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 import { LINK_ID_LENGTH } from '../constants';
-import { LinkStatus, LinkStatusCode, LinkType } from '../enums';
+import { LinkStatus, LinkType } from '../enums';
 
 import { User } from './user.entity';
 import { LinkHitHistory } from './link-hit-history.entity';
@@ -17,9 +17,6 @@ export class Link {
 
   @Column({ type: 'varchar', length: 2048, comment: 'URL' })
   url: string;
-
-  @Column({ type: 'smallint', unsigned: true, default: LinkStatusCode.Permanently, comment: '리디렉션 방식' })
-  statusCode: LinkStatusCode;
 
   @Column({ type: 'varchar', length: 10, default: LinkStatus.Activated, comment: '활성 상태' })
   status: LinkStatus;

@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { Link } from 'src/domain/entities/link.entity';
-import { LinkStatusCode, LinkType } from 'src/domain/enums';
+import { LinkType } from 'src/domain/enums';
 
 export class LinkDTO {
   @ApiProperty({ type: String })
@@ -13,9 +13,6 @@ export class LinkDTO {
   @ApiProperty({ type: String })
   url: string;
 
-  @ApiProperty({ type: Number, enum: [LinkStatusCode.Found, LinkStatusCode.Permanently] })
-  statusCode: LinkStatusCode;
-
   @ApiProperty({ type: Date, nullable: true })
   expiredAt: Date | null;
 
@@ -26,7 +23,6 @@ export class LinkDTO {
     this.id = link.id;
     this.type = link.type;
     this.url = link.url;
-    this.statusCode = link.statusCode;
     this.expiredAt = link.expiredAt;
     this.hitCount = link.statistics?.hitCount;
   }

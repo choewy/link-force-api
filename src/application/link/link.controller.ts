@@ -9,9 +9,7 @@ import { LinkDTO } from './dto/link.dto';
 import { GetLinksRequestDTO } from './dto/get-links-request.dto';
 import { GetLinksResponseDTO } from './dto/get-links-response.dto';
 import { GetLinkRequestDTO } from './dto/get-link-request.dto';
-import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
-import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
 import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
 
 @ApiTags('링크')
@@ -42,15 +40,15 @@ export class LinkController {
   @SetOptionalRequestUserID()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '링크 생성' })
-  @ApiCreatedResponse({ type: CreateLinkResponseDTO })
+  @ApiCreatedResponse({ type: LinkDTO })
   async createLink(@Body() body: CreateLinkRequestDTO) {
     return this.linkService.createLink(body);
   }
 
-  @Get(':id/hit')
+  @Post(':id/hit')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '링크 접속' })
-  @ApiOkResponse({ type: HitLinkResponseDTO })
+  @ApiOkResponse({ type: LinkDTO })
   async hitLink(@Param() param: GetLinkRequestDTO) {
     return this.linkService.hitLink(param.id);
   }
