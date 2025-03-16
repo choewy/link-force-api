@@ -1,5 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+
+import { Request } from 'express';
 
 import { SetOptionalRequestUserID, SetRequiredRequestUserID } from 'src/persistent/decorators';
 import { UseAuthGuard } from 'src/common/auth/auth.guard';
@@ -49,8 +51,8 @@ export class LinkController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '링크 접속' })
   @ApiOkResponse({ type: LinkDTO })
-  async hitLink(@Param() param: GetLinkRequestDTO) {
-    return this.linkService.hitLink(param.id);
+  async hitLink(@Req() request: Request, @Param() param: GetLinkRequestDTO) {
+    return this.linkService.hitLink(request, param.id);
   }
 
   @Patch(':id')

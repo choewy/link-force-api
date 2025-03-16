@@ -1,4 +1,4 @@
-import { CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 import { Link } from './link.entity';
 
@@ -6,6 +6,9 @@ import { Link } from './link.entity';
 export class LinkHitHistory {
   @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true, comment: 'PK' })
   readonly id: string;
+
+  @Column({ type: 'varchar', length: 20, comment: '요청 IP' })
+  ip: string;
 
   @CreateDateColumn({ comment: '생성일시' })
   readonly createdAt: Date;

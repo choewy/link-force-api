@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
+import { Request } from 'express';
 import { And, DataSource, In, LessThanOrEqual } from 'typeorm';
 import { DateTime } from 'luxon';
 
@@ -19,6 +20,7 @@ import { GetLinksRequestDTO } from './dto/get-links-request.dto';
 import { GetLinksResponseDTO } from './dto/get-links-response.dto';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
+import { RequestHeader } from 'src/persistent/enums';
 
 @Injectable()
 export class LinkService {
@@ -32,14 +34,16 @@ export class LinkService {
 
   async getLinks(param: GetLinksRequestDTO) {
     const linkRepository = this.dataSource.getRepository(Link);
-    const [links, count] = await linkRepository.findAndCount({
-      relations: { statistics: true },
-      where: {
+    const [links, count] = await linkRepository
+      .createQueryBuilder('link')
+      .innerJoinAndMapOne('link.statistics', 'link.statistics', 'statistics')
+      .where('1 = 1')
+      .andWhere('link.userId = :userId', {
         userId: this.contextService.getRequestUserID() ?? '0',
-      },
-      skip: param.skip,
-      take: param.take,
-    });
+      })
+      .skip(param.skip)
+      .take(param.take)
+      .getManyAndCount();
 
     return new GetLinksResponseDTO(links, count);
   }
@@ -76,19 +80,16 @@ export class LinkService {
       while (true) {
         link.id = link.createId();
 
-        const hasId = await linkRepository.exists({
-          select: { id: true },
-          where: { id: link.id },
-          lock: { mode: 'pessimistic_write' },
-          take: 1,
-        });
+        try {
+          await linkRepository.insert(link);
 
-        if (!hasId) {
           break;
+        } catch (e) {
+          console.log(e);
+
+          continue;
         }
       }
-
-      await linkRepository.insert(link);
 
       const linkStatisticsRepository = em.getRepository(LinkStatistics);
       await linkStatisticsRepository.insert({ linkId: link.id });
@@ -108,7 +109,11 @@ export class LinkService {
     return new LinkDTO(link);
   }
 
-  async hitLink(id: string) {
+  async hitLink(request: Request, id: string) {
+    const ip =
+      (Array.isArray(request.headers[RequestHeader.XforwardedFor]) ? request.headers[RequestHeader.XforwardedFor].shift() : request.headers[RequestHeader.XforwardedFor]) ??
+      request.ip;
+
     const linkRepository = this.dataSource.getRepository(Link);
     const link = await linkRepository.findOne({
       select: { id: true, url: true },
@@ -129,7 +134,7 @@ export class LinkService {
 
     await this.dataSource.transaction(async (em) => {
       const linkHitHistoryRepository = em.getRepository(LinkHitHistory);
-      await linkHitHistoryRepository.insert(linkHitHistoryRepository.create({ link }));
+      await linkHitHistoryRepository.insert(linkHitHistoryRepository.create({ ip, link }));
 
       const linkStatisticsRepository = em.getRepository(LinkStatistics);
       await linkStatisticsRepository

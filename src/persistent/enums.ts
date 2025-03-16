@@ -5,6 +5,7 @@ export enum MetadataKey {
 export enum RequestHeader {
   AccessToken = 'authorization',
   RefreshToken = 'x-refresh-token',
+  XforwardedFor = 'x-forwarded-for',
 }
 
 export enum ResponseHeader {
