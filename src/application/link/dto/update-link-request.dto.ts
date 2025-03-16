@@ -1,17 +1,10 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
-import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 
 import { LinkStatus, LinkStatusCode } from 'src/domain/enums';
 
-export class UpdateLinkRequestParamDTO {
-  @ApiProperty({ type: String })
-  @IsString()
-  @IsNotEmpty()
-  id: string;
-}
-
-export class UpdateLinkRequestBodyDTO {
+export class UpdateLinkRequestDTO {
   @ApiPropertyOptional({ type: String, enum: LinkStatus })
   @IsEnum(LinkStatus)
   @IsOptional()

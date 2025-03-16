@@ -1,9 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length } from 'class-validator';
 
-export class HitLinkRequestDTO {
+import { IsNotEmpty, IsString, Length } from 'class-validator';
+
+export class GetLinkRequestDTO {
   @ApiProperty({ type: String, example: '', description: '링크 ID' })
   @IsString()
   @Length(7, 7)
+  @IsNotEmpty()
   id: string;
 }

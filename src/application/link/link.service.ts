@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { And, DataSource, In, LessThanOrEqual } from 'typeorm';
@@ -14,12 +14,13 @@ import { ContextService } from 'src/common/context/context.service';
 import { RedisService } from 'src/common/redis/redis.service';
 import { TimerService } from 'src/common/timer/timer.service';
 
-import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
-import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
-import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
-import { UpdateLinkRequestBodyDTO } from './dto/update-link-request.dto';
+import { LinkDTO } from './dto/link.dto';
 import { GetLinksRequestDTO } from './dto/get-links-request.dto';
 import { GetLinksResponseDTO } from './dto/get-links-response.dto';
+import { HitLinkResponseDTO } from './dto/hit-link-response.dto';
+import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
+import { CreateLinkResponseDTO } from './dto/create-link-response.dto';
+import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
 
 @Injectable()
 export class LinkService {
@@ -43,6 +44,20 @@ export class LinkService {
     });
 
     return new GetLinksResponseDTO(links, count);
+  }
+
+  async getLink(id: string) {
+    const linkRepository = this.dataSource.getRepository(Link);
+    const link = await linkRepository.findOne({
+      relations: { statistics: true },
+      where: { id, userId: this.contextService.getRequestUserID() },
+    });
+
+    if (!link) {
+      throw new BadRequestException();
+    }
+
+    return new LinkDTO(link);
   }
 
   async createLink(body: CreateLinkRequestDTO) {
@@ -130,7 +145,7 @@ export class LinkService {
     return new HitLinkResponseDTO(link);
   }
 
-  async updateLink(id: string, body: UpdateLinkRequestBodyDTO) {
+  async updateLink(id: string, body: UpdateLinkRequestDTO) {
     const linkRepository = this.dataSource.getRepository(Link);
     const link = await linkRepository.findOneBy({ id });
 
@@ -169,8 +184,7 @@ export class LinkService {
 
   @Cron(CronExpression.EVERY_30_SECONDS)
   async handleDeleteCron() {
-    const sleepSeconds = Math.floor(Math.random() * 2 + 1);
-    await this.timerService.sleep(sleepSeconds);
+    await this.timerService.sleep(this.timerService.getRandomSeconds(1, 3));
 
     const key = this.createDeleteCronKey();
 
