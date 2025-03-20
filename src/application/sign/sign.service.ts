@@ -27,6 +27,16 @@ export class SignService {
     private readonly naverApiService: NaverApiService,
   ) {}
 
+  async getSignToken(authKey: string) {
+    const tokens = await this.authService.getToken(authKey);
+
+    if (!tokens) {
+      throw new UnauthorizedException();
+    }
+
+    return new SignTokenResponseDTO(tokens.accessToken, tokens.refreshToken);
+  }
+
   public getSignInPageURL(platform: SignPlatform, state: string): SignInPageURLResponseDTO {
     switch (platform) {
       case SignPlatform.Kakao:
@@ -131,15 +141,5 @@ export class SignService {
     const platformAccount = await this.findOrCreatePlatformAccount(platformProfile);
 
     return this.createSignUrl(platformAccount.user.id, platform, param.state);
-  }
-
-  async getSignToken(authKey: string) {
-    const tokens = await this.authService.getToken(authKey);
-
-    if (!tokens) {
-      throw new UnauthorizedException();
-    }
-
-    return new SignTokenResponseDTO(tokens.accessToken, tokens.refreshToken);
   }
 }
