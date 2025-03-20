@@ -9,9 +9,9 @@ export class User {
   @PrimaryGeneratedColumn('uuid')
   readonly id: string;
 
-  @OneToOne(() => PlatformAccount, (e) => e.user, { nullable: true, cascade: true })
+  @OneToOne(() => PlatformAccount, (e) => e.user, { cascade: true })
   @JoinTable()
-  platformAccount: PlatformAccount | null;
+  platformAccount: PlatformAccount;
 
   @OneToOne(() => UserSpecification, (e) => e.user, { cascade: true })
   @JoinTable()

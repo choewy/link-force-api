@@ -34,43 +34,49 @@ export class SignService {
     return new SignInPageURLResponseDTO(url);
   }
 
-  async signWithKakao(param: SignWithKakaoRequestDTO) {
-    const tokenResponse = await this.kakaoApiService.getToken(param.code);
-    const kakaoProfile = await this.kakaoApiService.getProfile(tokenResponse.access_token);
-
+  private async findOrCreatePlatformAccount(platform: SignPlatform, accountId: string, nickname?: string | null, profileImage?: string | null): Promise<PlatformAccount> {
     const platformAccountRepository = this.dataSource.getRepository(PlatformAccount);
 
     let platformAccount = await platformAccountRepository.findOne({
       relations: { user: true },
       select: { id: true },
-      where: { platform: SignPlatform.Kakao, accountId: kakaoProfile.id },
+      where: { platform, accountId },
     });
 
-    if (!platformAccount?.user) {
-      platformAccount = platformAccountRepository.create({
-        platform: SignPlatform.Kakao,
-        accountId: kakaoProfile.id,
-        nickname: kakaoProfile.properties.nickname,
-        profileImage: kakaoProfile.properties.profile_image,
-      });
+    if (platformAccount?.user?.id) {
+      await platformAccountRepository.update({ id: platformAccount.id }, { nickname, profileImage });
 
-      const userSpecificationRepository = this.dataSource.getRepository(UserSpecification);
-      const userSpecification = userSpecificationRepository.create();
-
-      const userRepository = this.dataSource.getRepository(User);
-      const user = userRepository.create({ platformAccount, specification: userSpecification });
-      await userRepository.save(user);
-
-      platformAccount.user = user;
+      return platformAccount;
     }
 
-    const accessToken = this.authService.issueAccessToken(platformAccount.user.id);
+    platformAccount = platformAccountRepository.create({ platform, accountId, nickname, profileImage });
+
+    const userSpecificationRepository = this.dataSource.getRepository(UserSpecification);
+    const userRepository = this.dataSource.getRepository(User);
+    const user = userRepository.create({ platformAccount, specification: userSpecificationRepository.create() });
+    await userRepository.save(user);
+
+    platformAccount.user = user;
+
+    return platformAccount;
+  }
+
+  private async createSignUrl(id: string, redirectUrl: string) {
+    const accessToken = this.authService.issueAccessToken(id);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
 
     const authKey = await this.authService.setToken(accessToken, refreshToken);
-    const redirectURL = [param.state, qs.stringify({ authKey })].join('?');
 
-    return redirectURL;
+    return [redirectUrl, qs.stringify({ authKey })].join('?');
+  }
+
+  async signWithKakao(param: SignWithKakaoRequestDTO) {
+    const tokenResponse = await this.kakaoApiService.getToken(param.code);
+    const kakaoProfile = await this.kakaoApiService.getProfile(tokenResponse.access_token);
+
+    const platformAccount = await this.findOrCreatePlatformAccount(SignPlatform.Kakao, kakaoProfile.id, kakaoProfile.properties.nickname, kakaoProfile.properties.profile_image);
+
+    return this.createSignUrl(platformAccount.user.id, param.state);
   }
 
   async getSignToken(authKey: string) {

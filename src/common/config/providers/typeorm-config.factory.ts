@@ -27,7 +27,6 @@ export class TypeOrmConfigFactory {
       logging: nodeEnv.isLocal() ? ['query', 'info', 'error', 'warn'] : ['error', 'warn'],
       entities: [`${process.cwd()}/dist/**/*.entity.{js,ts}`],
       namingStrategy: new SnakeNamingStrategy(),
-      dropSchema: true,
     };
   }
 }

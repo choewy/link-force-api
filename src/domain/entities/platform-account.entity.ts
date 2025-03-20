@@ -15,15 +15,15 @@ export class PlatformAccount {
   @Column({ type: 'varchar', length: 20, comment: '카카오 ID' })
   accountId: string;
 
-  @Column({ type: 'varchar', length: 50, comment: '닉네임' })
-  nickname: string;
+  @Column({ type: 'varchar', length: 50, default: null, comment: '닉네임' })
+  nickname: string | null;
 
-  @Column({ type: 'varchar', length: 1024, default: '', comment: '프로필 이미지 URL' })
+  @Column({ type: 'varchar', length: 1024, default: null, comment: '프로필 이미지 URL' })
   profileImage: string | null;
 
-  @OneToOne(() => User, (e) => e.platformAccount, { nullable: true, onDelete: 'CASCADE' })
+  @OneToOne(() => User, (e) => e.platformAccount, { onDelete: 'CASCADE' })
   @JoinColumn()
-  user: User | null;
+  user: User;
 
   @CreateDateColumn({ comment: '생성일시' })
   readonly createdAt: Date;
