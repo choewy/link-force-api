@@ -8,15 +8,16 @@ import { PlatformAccount } from 'src/domain/entities/platform-account.entity';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { User } from 'src/domain/entities/user.entity';
 import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
+import { KakaoProfileResponse } from 'src/external/kakao-api/types';
 import { NaverApiService } from 'src/external/naver-api/naver-api.service';
+import { NaverProfileResponse } from 'src/external/naver-api/types';
 
 import { SignPlatform } from './enums';
 import { GetOrCreatePlatformAccountParam } from './types';
 import { SignInPageURLResponseDTO } from './dto/sign-in-page-url-response.dto';
 import { SignTokenResponseDTO } from './dto/sign-token-response.dto';
 import { SignWithPlatformRequestQueryParamDTO } from './dto/sign-with-platform-request.dto';
-import { KakaoProfileResponse } from 'src/external/kakao-api/types';
-import { NaverProfileResponse } from 'src/external/naver-api/types';
+
 @Injectable()
 export class SignService {
   constructor(
