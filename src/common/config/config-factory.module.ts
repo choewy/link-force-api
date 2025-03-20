@@ -7,8 +7,9 @@ import { TypeOrmConfigFactory } from './providers/typeorm-config.factory';
 import { RedisConfigFactory } from './providers/redis-config.factory';
 import { JwtConfigFactory } from './providers/jwt-config.factory';
 import { KakaoApiConfigFactory } from './providers/kakao-api-config.factory';
+import { NaverApiConfigFactory } from './providers/naver-api-config.factory';
 
-const ConfigFactoryProviders = [AppConfigFactory, ServerConfigFactory, TypeOrmConfigFactory, RedisConfigFactory, JwtConfigFactory, KakaoApiConfigFactory];
+const ConfigFactoryProviders = [AppConfigFactory, ServerConfigFactory, TypeOrmConfigFactory, RedisConfigFactory, JwtConfigFactory, KakaoApiConfigFactory, NaverApiConfigFactory];
 
 @Global()
 @Module({

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -13,7 +14,6 @@ import { RedisConfigFactory } from './common/config/providers/redis-config.facto
 
 import { LinkModule } from './application/link/link.module';
 import { SignModule } from './application/sign/sign.module';
-import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [

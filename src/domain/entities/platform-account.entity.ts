@@ -12,11 +12,17 @@ export class PlatformAccount {
   @Column({ type: 'varchar', length: 20, comment: '플랫폼' })
   platform: SignPlatform;
 
-  @Column({ type: 'varchar', length: 20, comment: '카카오 ID' })
+  @Column({ type: 'varchar', length: 100, comment: '플랫폼 ID' })
   accountId: string;
 
   @Column({ type: 'varchar', length: 50, default: null, comment: '닉네임' })
+  name: string | null;
+
+  @Column({ type: 'varchar', length: 50, default: null, comment: '닉네임' })
   nickname: string | null;
+
+  @Column({ type: 'varchar', length: 340, default: null, comment: '이메일' })
+  email: string | null;
 
   @Column({ type: 'varchar', length: 1024, default: null, comment: '프로필 이미지 URL' })
   profileImage: string | null;
