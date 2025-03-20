@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 import { ClsService } from 'nestjs-cls';
+import { DateTime } from 'luxon';
+
 import { ContextKey } from './enums';
 
 @Injectable()
@@ -13,6 +15,10 @@ export class ContextService {
 
   getRequestTimestamp(): number {
     return this.clsService.get(ContextKey.RequestTimestamp);
+  }
+
+  getRequestDateTime(): string {
+    return String(DateTime.fromJSDate(new Date(this.getRequestTimestamp() ?? Date.now())).toISO({ includeOffset: true }));
   }
 
   getRequestLatency(): number {

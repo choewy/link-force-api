@@ -1,8 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { AppService } from './app.service';
+import { ResponseType } from './persistent/dtos';
 import { AppProfileDTO } from './dto/app-profile.dto';
+
+import { AppService } from './app.service';
 
 @ApiTags('앱')
 @Controller()
@@ -11,7 +13,7 @@ export class AppController {
 
   @Get()
   @ApiOperation({ summary: '앱 프로필' })
-  @ApiOkResponse({ type: AppProfileDTO })
+  @ApiOkResponse({ type: ResponseType(AppProfileDTO) })
   getAppProfile() {
     return this.appService.getAppProfile();
   }

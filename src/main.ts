@@ -1,12 +1,15 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { BadRequestException, ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 
+import { RequestHeader } from './persistent/enums';
 import { AppConfigFactory } from './common/config/providers/app-config.factory';
 import { ServerConfigFactory } from './common/config/providers/server-config.factory';
-import { RequestHeader } from './persistent/enums';
+import { ExceptionFilter } from './common/filter/exception.filter';
+import { ContextService } from './common/context/context.service';
+import { SerializerInterceptor } from './common/interceptor/serializer.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -25,18 +28,9 @@ async function bootstrap() {
   SwaggerModule.setup('api-docs', app, swaggerDocument);
 
   app.enableShutdownHooks();
-  app.enableCors({
-    origin: serverConfig.getCorsOrigin(),
-    credentials: true,
-  });
-
-  app.useGlobalInterceptors(
-    new ClassSerializerInterceptor(app.get(Reflector), {
-      enableCircularCheck: true,
-      enableImplicitConversion: true,
-    }),
-  );
-
+  app.enableCors({ origin: serverConfig.getCorsOrigin(), credentials: true });
+  app.useGlobalInterceptors(new SerializerInterceptor(app.get(Reflector), app.get(ContextService)));
+  app.useGlobalFilters(new ExceptionFilter(app.get(ContextService)));
   app.useGlobalPipes(
     new ValidationPipe({
       stopAtFirstError: true,
