@@ -4,7 +4,7 @@ import { Link } from './link.entity';
 
 @Entity({ name: 'link_hit_history', comment: '링크 접속 히스토리' })
 export class LinkHitHistory {
-  @PrimaryGeneratedColumn({ type: 'bigint', unsigned: true, comment: 'PK' })
+  @PrimaryGeneratedColumn('uuid')
   readonly id: string;
 
   @Column({ type: 'varchar', length: 20, comment: '요청 IP' })

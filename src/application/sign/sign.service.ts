@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import * as qs from 'qs';
 
 import { AuthService } from 'src/common/auth/auth.service';
-import { KakaoAccount } from 'src/domain/entities/kakao-account.entity';
+import { PlatformAccount } from 'src/domain/entities/platform-account.entity';
 import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { User } from 'src/domain/entities/user.entity';
@@ -38,17 +38,18 @@ export class SignService {
     const tokenResponse = await this.kakaoApiService.getToken(param.code);
     const kakaoProfile = await this.kakaoApiService.getProfile(tokenResponse.access_token);
 
-    const kakaoAccountRepository = this.dataSource.getRepository(KakaoAccount);
+    const platformAccountRepository = this.dataSource.getRepository(PlatformAccount);
 
-    let kakaoAccount = await kakaoAccountRepository.findOne({
+    let platformAccount = await platformAccountRepository.findOne({
       relations: { user: true },
       select: { id: true },
-      where: { id: kakaoProfile.id },
+      where: { platform: SignPlatform.Kakao, accountId: kakaoProfile.id },
     });
 
-    if (!kakaoAccount?.user) {
-      kakaoAccount = kakaoAccountRepository.create({
-        id: kakaoProfile.id,
+    if (!platformAccount?.user) {
+      platformAccount = platformAccountRepository.create({
+        platform: SignPlatform.Kakao,
+        accountId: kakaoProfile.id,
         nickname: kakaoProfile.properties.nickname,
         profileImage: kakaoProfile.properties.profile_image,
       });
@@ -57,13 +58,13 @@ export class SignService {
       const userSpecification = userSpecificationRepository.create();
 
       const userRepository = this.dataSource.getRepository(User);
-      const user = userRepository.create({ kakaoAccount, specification: userSpecification });
+      const user = userRepository.create({ platformAccount, specification: userSpecification });
       await userRepository.save(user);
 
-      kakaoAccount.user = user;
+      platformAccount.user = user;
     }
 
-    const accessToken = this.authService.issueAccessToken(kakaoAccount.user.id);
+    const accessToken = this.authService.issueAccessToken(platformAccount.user.id);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
 
     const authKey = await this.authService.setToken(accessToken, refreshToken);

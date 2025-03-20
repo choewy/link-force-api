@@ -24,7 +24,7 @@ export class Link {
   @Column({ type: 'timestamp', default: null, comment: '만료일시' })
   expiredAt: Date | null;
 
-  @Column({ type: 'bigint', unsigned: true, nullable: true, comment: '사용자 PK' })
+  @Column({ type: 'varchar', length: 36, nullable: true, comment: '사용자 PK' })
   userId: string | null;
 
   @ManyToOne(() => User, (e) => e.links, { nullable: true, onDelete: 'CASCADE' })
