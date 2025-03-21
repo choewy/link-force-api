@@ -4,7 +4,7 @@ import { User } from './user.entity';
 
 @Entity({ name: 'user_specification', comment: '사용자 상세' })
 export class UserSpecification {
-  @PrimaryColumn({ type: 'varchar', length: 36, comment: '사용자 PK' })
+  @PrimaryColumn({ type: 'varchar', comment: '사용자 PK' })
   userId: string;
 
   @Column({ type: 'int', unsigned: true, default: 0, comment: '링크수' })

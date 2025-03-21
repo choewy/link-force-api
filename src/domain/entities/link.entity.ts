@@ -9,7 +9,7 @@ import { LinkStatistics } from './link-statistics.entity';
 
 @Entity({ name: 'link', comment: '링크' })
 export class Link {
-  @PrimaryColumn({ type: 'varchar', length: LINK_ID_LENGTH, comment: '링크 PK' })
+  @PrimaryColumn({ type: 'varchar', comment: '링크 PK' })
   id: string;
 
   @Column({ type: 'varchar', length: 10, comment: '구분' })
@@ -24,7 +24,7 @@ export class Link {
   @Column({ type: 'timestamp', default: null, comment: '만료일시' })
   expiredAt: Date | null;
 
-  @Column({ type: 'varchar', length: 36, nullable: true, comment: '사용자 PK' })
+  @Column({ type: 'varchar', nullable: true, comment: '사용자 PK' })
   userId: string | null;
 
   @ManyToOne(() => User, (e) => e.links, { nullable: true, onDelete: 'CASCADE' })

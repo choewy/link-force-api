@@ -17,7 +17,7 @@ export class TypeOrmConfigFactory {
     const nodeEnv = this.appConfigFactory.getNodeEnv();
 
     return {
-      type: 'mysql',
+      type: 'postgres',
       host: this.configService.getOrThrow('DB_HOST'),
       port: +this.configService.getOrThrow('DB_PORT'),
       username: this.configService.getOrThrow('DB_USERNAME'),
@@ -25,8 +25,8 @@ export class TypeOrmConfigFactory {
       database: this.configService.getOrThrow('DB_DATABASE'),
       synchronize: nodeEnv.isLocal() && this.configService.get('DB_SYNCHRONIZE') === 'true',
       logging: nodeEnv.isLocal() ? ['query', 'info', 'error', 'warn'] : ['error', 'warn'],
-      entities: [`${process.cwd()}/dist/**/*.entity.{js,ts}`],
       namingStrategy: new SnakeNamingStrategy(),
+      entities: [`${process.cwd()}/dist/**/*.entity.{js,ts}`],
     };
   }
 }

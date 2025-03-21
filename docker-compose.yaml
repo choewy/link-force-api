@@ -1,34 +1,43 @@
 name: link-force
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: link-force-mysql
+  postgres:
+    container_name: link-force-postgres
+    image: postgres:16
     environment:
-      TZ: Asia/Seoul
-      MYSQL_USER: link-force
-      MYSQL_PASSWORD: link-force
-      MYSQL_DATABASE: link-force
-      MYSQL_ROOT_PASSWORD: link-force
-    volumes:
-      - ../.link-force/mysql/data:/var/lib/mysql
-      - ../.link-force/mysql/log:/var/log
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     ports:
-      - 33067:3306
-    restart: unless-stopped
+      - 54321:5432
     networks:
       - link-force
 
   redis:
-    image: redis/redis-stack-server:7.2.0-v10
     container_name: link-force-redis
+    image: redis/redis-stack-server:7.2.0-v10
+    ports:
+      - 6385:6379
     volumes:
       - ./docker/redis/redis.conf/:/redis-stack.conf
       - ../.link-force/redis/data/:/data
       - ../.link-force/redis/log:/var/log/redis
+    networks:
+      - link-force
+
+  app:
+    container_name: link-force-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
     ports:
-      - 6385:6379
-    restart: unless-stopped
+      - 4000:3000
     networks:
       - link-force
 

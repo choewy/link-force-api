@@ -22,6 +22,7 @@ import { SignModule } from './application/sign/sign.module';
     TypeOrmModule.forRootAsync({
       inject: [TypeOrmConfigFactory],
       useFactory(typeOrmConfigFactory: TypeOrmConfigFactory) {
+        console.log(typeOrmConfigFactory.getTypeOrmModuleOptions());
         return typeOrmConfigFactory.getTypeOrmModuleOptions();
       },
     }),

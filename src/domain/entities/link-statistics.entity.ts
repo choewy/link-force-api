@@ -1,11 +1,10 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
-import { LINK_ID_LENGTH } from '../constants';
 import { Link } from './link.entity';
 
 @Entity({ name: 'link_statistics', comment: '링크 통계' })
 export class LinkStatistics {
-  @PrimaryColumn({ type: 'varchar', length: LINK_ID_LENGTH, comment: '링크 PK' })
+  @PrimaryColumn({ type: 'varchar', comment: '링크 PK' })
   linkId: string;
 
   @Column({ type: 'bigint', unsigned: true, default: 0, comment: '요청수' })
