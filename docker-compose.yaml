@@ -39,7 +39,7 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - 4000:3000
+      - 4000:4000
     networks:
       - link-force
 

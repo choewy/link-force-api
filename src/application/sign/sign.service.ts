@@ -15,9 +15,10 @@ import { NaverProfileResponse } from 'src/external/naver-api/types';
 
 import { SignPlatform } from './enums';
 import { GetOrCreatePlatformAccountParam } from './types';
-import { SignInPageURLResponseDTO } from './dto/sign-in-page-url-response.dto';
-import { SignTokenResponseDTO } from './dto/sign-token-response.dto';
-import { SignWithPlatformRequestQueryParamDTO } from './dto/sign-with-platform-request.dto';
+import { GetSignTokenDTO } from './dto/get-sign-token.dto';
+import { GetSignTokenResultDTO } from './dto/get-sign-token-result.dto';
+import { GetPlatformLoginPageUrlResultDTO } from './dto/get-platform-login-page-url-result.dto';
+import { PlatformLoginCallbackQueryDTO } from './dto/platform-login-callback-query.dto';
 
 @Injectable()
 export class SignService {
@@ -31,30 +32,30 @@ export class SignService {
     private readonly naverApiService: NaverApiService,
   ) {}
 
-  async getSignToken(authKey: string): Promise<SignTokenResponseDTO> {
-    const tokens = await this.authService.getToken(authKey);
+  async getSignToken(getSignTokenDTO: GetSignTokenDTO): Promise<GetSignTokenResultDTO> {
+    const tokens = await this.authService.getToken(getSignTokenDTO.authKey);
 
     if (!tokens) {
       throw new UnauthorizedException();
     }
 
-    return new SignTokenResponseDTO(tokens.accessToken, tokens.refreshToken);
+    return new GetSignTokenResultDTO(tokens.accessToken, tokens.refreshToken);
   }
 
-  public getSignInPageURL(platform: SignPlatform, state: string): SignInPageURLResponseDTO {
+  public getPlatformLoginPageUrl(platform: SignPlatform, state: string): GetPlatformLoginPageUrlResultDTO {
     switch (platform) {
       case SignPlatform.Kakao:
-        return new SignInPageURLResponseDTO(this.kakaoApiService.getLoginPageURL(state));
+        return new GetPlatformLoginPageUrlResultDTO(this.kakaoApiService.getLoginPageURL(state));
 
       case SignPlatform.Naver:
-        return new SignInPageURLResponseDTO(this.naverApiService.getLoginPageURL(state));
+        return new GetPlatformLoginPageUrlResultDTO(this.naverApiService.getLoginPageURL(state));
 
       default:
         throw new BadRequestException();
     }
   }
 
-  private async createSignUrl(id: string, platform: SignPlatform, redirectUrl: string): Promise<string> {
+  private async createSignUrl(redirectUrl: string, platform: SignPlatform, id: string): Promise<string> {
     const accessToken = this.authService.issueAccessToken(id);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
 
@@ -131,11 +132,11 @@ export class SignService {
     return platformAccount;
   }
 
-  async signWithPlatform(platform: SignPlatform, param: SignWithPlatformRequestQueryParamDTO): Promise<string> {
+  async platformLoginCallback(platform: SignPlatform, param: PlatformLoginCallbackQueryDTO): Promise<string> {
     const accessToken = await this.getPlatformAccessToken(platform, param.code, param.state);
     const platformProfile = await this.getPlatformProfile(platform, accessToken);
     const platformAccount = await this.findOrCreatePlatformAccount(platformProfile);
 
-    return this.createSignUrl(platformAccount.user.id, platform, param.state);
+    return this.createSignUrl(param.state, platform, platformAccount.user.id);
   }
 }

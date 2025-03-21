@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SignInPageURLResponseDTO {
+export class GetPlatformLoginPageUrlResultDTO {
   @ApiProperty({ type: String })
   url: string;
 
