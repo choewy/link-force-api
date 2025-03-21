@@ -64,23 +64,39 @@ export class LinkService {
 
   async createLink(body: CreateLinkRequestDTO) {
     const userId = this.contextService.getRequestUserID();
-
-    const days = userId === null ? 7 : 30;
-    const expiredAt = body.type === LinkType.Free ? DateTime.local().plus({ days }).toJSDate() : null;
+    const link = this.linkRepository.create({
+      userId,
+      url: body.url,
+      type: body.type,
+      expiredAt:
+        body.type === LinkType.Free
+          ? DateTime.local()
+              .plus({ days: userId === null ? 7 : 30 })
+              .toJSDate()
+          : null,
+    });
 
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
 
-    const link = this.linkRepository.create({
-      id: Link.createId(),
-      userId,
-      url: body.url,
-      type: body.type,
-      expiredAt,
-    });
-
     try {
-      await this.linkRepository.insert(link);
+      let retryCount = 0;
+
+      while (retryCount < 20) {
+        link.id = Link.createId();
+
+        const isInserted = await this.linkRepository
+          .insert(link)
+          .then(() => true)
+          .catch(() => false);
+
+        if (isInserted) {
+          break;
+        }
+
+        retryCount++;
+      }
+
       await this.linkStatisticsRepository.insert({ linkId: link.id });
 
       if (userId) {
