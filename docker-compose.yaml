@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+    volumes:
+      - ./docker/postgres/:/var/lib/postgresql/data
     ports:
       - 54321:5432
     networks:
@@ -16,12 +18,12 @@ services:
   redis:
     container_name: link-force-redis
     image: redis/redis-stack-server:7.2.0-v10
-    ports:
-      - 6385:6379
     volumes:
       - ./docker/redis/redis.conf/:/redis-stack.conf
-      - ../.link-force/redis/data/:/data
-      - ../.link-force/redis/log:/var/log/redis
+      - ./docker/redis/log:/var/log/redis
+      - ./docker/redis/data/:/DATA
+    ports:
+      - 6385:6379
     networks:
       - link-force
 

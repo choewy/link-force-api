@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 
+import { LoggerModule } from 'nestjs-pino';
+
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -19,6 +21,7 @@ import { SignModule } from './application/sign/sign.module';
   imports: [
     ContextModule,
     ConfigFactoryModule,
+    LoggerModule.forRoot(),
     TypeOrmModule.forRootAsync({
       inject: [TypeOrmConfigFactory],
       useFactory(typeOrmConfigFactory: TypeOrmConfigFactory) {

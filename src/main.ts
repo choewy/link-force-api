@@ -10,9 +10,10 @@ import { ServerConfigFactory } from './common/config/providers/server-config.fac
 import { ExceptionFilter } from './common/filter/exception.filter';
 import { ContextService } from './common/context/context.service';
 import { SerializerInterceptor } from './common/interceptor/serializer.interceptor';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const appConfig = app.get(AppConfigFactory);
   const serverConfig = app.get(ServerConfigFactory);
 
@@ -27,6 +28,7 @@ async function bootstrap() {
 
   SwaggerModule.setup('api-docs', app, swaggerDocument);
 
+  app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
   app.enableCors({ origin: serverConfig.getCorsOrigin(), credentials: true });
   app.useGlobalInterceptors(new SerializerInterceptor(app.get(Reflector), app.get(ContextService)));
