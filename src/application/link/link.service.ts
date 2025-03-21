@@ -2,7 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 import { Request } from 'express';
-import { And, DataSource, In, LessThanOrEqual } from 'typeorm';
+import { And, DataSource, In, LessThanOrEqual, Repository } from 'typeorm';
 import { DateTime } from 'luxon';
 
 import { Link } from 'src/domain/entities/link.entity';
@@ -21,11 +21,18 @@ import { GetLinksRequestDTO } from './dto/get-links-request.dto';
 import { GetLinksResponseDTO } from './dto/get-links-response.dto';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class LinkService {
   constructor(
     private readonly dataSource: DataSource,
+    @InjectRepository(Link)
+    private readonly linkRepository: Repository<Link>,
+    @InjectRepository(UserSpecification)
+    private readonly userSpecificationRepository: Repository<UserSpecification>,
+    @InjectRepository(LinkStatistics)
+    private readonly linkStatisticsRepository: Repository<LinkStatistics>,
     private readonly appConfigFactory: AppConfigFactory,
     private readonly contextService: ContextService,
     private readonly redisService: RedisService,
@@ -33,8 +40,7 @@ export class LinkService {
   ) {}
 
   async getLinks(param: GetLinksRequestDTO) {
-    const linkRepository = this.dataSource.getRepository(Link);
-    const [links, count] = await linkRepository
+    const [links, count] = await this.linkRepository
       .createQueryBuilder('link')
       .innerJoinAndMapOne('link.statistics', 'link.statistics', 'statistics')
       .where('1 = 1')
@@ -49,14 +55,13 @@ export class LinkService {
   }
 
   async getLink(id: string) {
-    const linkRepository = this.dataSource.getRepository(Link);
-    const link = await linkRepository.findOne({
+    const link = await this.linkRepository.findOne({
       relations: { statistics: true },
       where: { id, userId: this.contextService.getRequestUserID() },
     });
 
     if (!link) {
-      throw new BadRequestException();
+      throw new BadRequestException(`not found link by ${id}`);
     }
 
     return new LinkDTO(link);
@@ -68,43 +73,36 @@ export class LinkService {
     const days = userId === null ? 7 : 30;
     const expiredAt = body.type === LinkType.Free ? DateTime.local().plus({ days }).toJSDate() : null;
 
-    const link = await this.dataSource.transaction(async (em) => {
-      const linkRepository = em.getRepository(Link);
-      const link = linkRepository.create({
-        userId,
-        url: body.url,
-        type: body.type,
-        expiredAt,
-      });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
 
-      while (true) {
-        link.id = link.createId();
+    const link = this.linkRepository.create({
+      id: Link.createId(),
+      userId,
+      url: body.url,
+      type: body.type,
+      expiredAt,
+    });
 
-        try {
-          await linkRepository.insert(link);
-
-          break;
-        } catch (e) {
-          console.log(e);
-
-          continue;
-        }
-      }
-
-      const linkStatisticsRepository = em.getRepository(LinkStatistics);
-      await linkStatisticsRepository.insert({ linkId: link.id });
+    try {
+      await this.linkRepository.insert(link);
+      await this.linkStatisticsRepository.insert({ linkId: link.id });
 
       if (userId) {
-        const userSpecificationRepository = em.getRepository(UserSpecification);
-        await userSpecificationRepository
+        await this.userSpecificationRepository
           .createQueryBuilder()
           .update({ linkCount: () => 'linkCount + 1' })
           .where({ userId })
           .execute();
       }
 
-      return link;
-    });
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
 
     return new LinkDTO(link);
   }

@@ -48,7 +48,7 @@ export class Link {
   @DeleteDateColumn({ comment: '삭제일시' })
   readonly deletedAt: Date | null;
 
-  createId() {
+  public static createId() {
     const numbers = '0123456789';
     const uppers = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lowers = 'abcdefghijklmnopqrstuvwxyz';
