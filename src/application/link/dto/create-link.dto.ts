@@ -4,7 +4,7 @@ import { IsEnum, IsNotEmpty, IsUrl } from 'class-validator';
 
 import { LinkType } from 'src/domain/enums';
 
-export class CreateLinkRequestDTO {
+export class CreateLinkDTO {
   @ApiProperty({ type: String, example: '', description: '축약할 URL' })
   @IsUrl()
   @IsNotEmpty()

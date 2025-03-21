@@ -4,7 +4,7 @@ import { Link } from 'src/domain/entities/link.entity';
 
 import { LinkDTO } from './link.dto';
 
-export class GetLinksResponseDTO {
+export class GetLinksResultDTO {
   @ApiProperty({ type: [LinkDTO] })
   rows: LinkDTO[];
 

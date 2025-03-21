@@ -14,10 +14,10 @@ import { RequestHeader } from 'src/persistent/enums';
 import { ContextService } from 'src/common/context/context.service';
 
 import { LinkDTO } from './dto/link.dto';
-import { GetLinksRequestDTO } from './dto/get-links-request.dto';
-import { GetLinksResponseDTO } from './dto/get-links-response.dto';
-import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
-import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
+import { GetLinksDTO } from './dto/get-links.dto';
+import { GetLinksResultDTO } from './dto/get-links-result.dto';
+import { CreateLinkDTO } from './dto/create-link.dto';
+import { UpdateLinkDTO } from './dto/update-link.dto';
 
 @Injectable()
 export class LinkService {
@@ -34,7 +34,7 @@ export class LinkService {
     private readonly contextService: ContextService,
   ) {}
 
-  async getLinks(param: GetLinksRequestDTO) {
+  async getLinks(param: GetLinksDTO) {
     const [links, count] = await this.linkRepository
       .createQueryBuilder('link')
       .innerJoinAndMapOne('link.statistics', 'link.statistics', 'statistics')
@@ -46,7 +46,7 @@ export class LinkService {
       .take(param.take)
       .getManyAndCount();
 
-    return new GetLinksResponseDTO(links, count);
+    return new GetLinksResultDTO(links, count);
   }
 
   async getLink(id: string) {
@@ -62,7 +62,7 @@ export class LinkService {
     return new LinkDTO(link);
   }
 
-  async createLink(body: CreateLinkRequestDTO) {
+  async createLink(body: CreateLinkDTO) {
     const userId = this.contextService.getRequestUserID();
     const link = this.linkRepository.create({
       userId,
@@ -159,7 +159,7 @@ export class LinkService {
     return new LinkDTO(link);
   }
 
-  async updateLink(id: string, body: UpdateLinkRequestDTO) {
+  async updateLink(id: string, body: UpdateLinkDTO) {
     const link = await this.linkRepository.findOneBy({ id });
 
     if (!link || link.userId !== this.contextService.getRequestUserID()) {

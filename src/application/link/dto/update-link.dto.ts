@@ -4,7 +4,7 @@ import { IsEnum, IsOptional } from 'class-validator';
 
 import { LinkStatus } from 'src/domain/enums';
 
-export class UpdateLinkRequestDTO {
+export class UpdateLinkDTO {
   @ApiPropertyOptional({ type: String, enum: LinkStatus })
   @IsEnum(LinkStatus)
   @IsOptional()

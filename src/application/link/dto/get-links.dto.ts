@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNotEmpty, Max, Min } from 'class-validator';
 
-export class GetLinksRequestDTO {
+export class GetLinksDTO {
   @ApiProperty({ type: Number })
   @Min(0)
   @IsInt()

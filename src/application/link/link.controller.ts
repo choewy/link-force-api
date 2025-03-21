@@ -8,12 +8,12 @@ import { ResponseType } from 'src/persistent/dtos';
 import { UseAuthGuard } from 'src/application/auth/auth.guard';
 
 import { LinkService } from './link.service';
+import { LinkParamDTO } from './dto/link-param.dto';
 import { LinkDTO } from './dto/link.dto';
-import { GetLinksRequestDTO } from './dto/get-links-request.dto';
-import { GetLinksResponseDTO } from './dto/get-links-response.dto';
-import { GetLinkRequestDTO } from './dto/get-link-request.dto';
-import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
-import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
+import { GetLinksDTO } from './dto/get-links.dto';
+import { GetLinksResultDTO } from './dto/get-links-result.dto';
+import { CreateLinkDTO } from './dto/create-link.dto';
+import { UpdateLinkDTO } from './dto/update-link.dto';
 
 @ApiTags('링크')
 @Controller('links')
@@ -24,8 +24,8 @@ export class LinkController {
   @UseAuthGuard()
   @SetRequiredRequestUserID()
   @ApiOperation({ summary: '링크 목록 조회' })
-  @ApiOkResponse({ type: ResponseType(GetLinksResponseDTO) })
-  async getLinks(@Query() queryParam: GetLinksRequestDTO) {
+  @ApiOkResponse({ type: ResponseType(GetLinksResultDTO) })
+  async getLinks(@Query() queryParam: GetLinksDTO) {
     return this.linkService.getLinks(queryParam);
   }
 
@@ -34,7 +34,7 @@ export class LinkController {
   @SetRequiredRequestUserID()
   @ApiOperation({ summary: '링크 조회' })
   @ApiOkResponse({ type: ResponseType(LinkDTO) })
-  async getLink(@Param() param: GetLinkRequestDTO) {
+  async getLink(@Param() param: LinkParamDTO) {
     return this.linkService.getLink(param.id);
   }
 
@@ -44,7 +44,7 @@ export class LinkController {
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '링크 생성' })
   @ApiCreatedResponse({ type: ResponseType(LinkDTO) })
-  async createLink(@Body() body: CreateLinkRequestDTO) {
+  async createLink(@Body() body: CreateLinkDTO) {
     return this.linkService.createLink(body);
   }
 
@@ -52,7 +52,7 @@ export class LinkController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '링크 접속' })
   @ApiOkResponse({ type: ResponseType(LinkDTO) })
-  async hitLink(@Req() request: Request, @Param() param: GetLinkRequestDTO) {
+  async hitLink(@Req() request: Request, @Param() param: LinkParamDTO) {
     return this.linkService.hitLink(request, param.id);
   }
 
@@ -62,7 +62,7 @@ export class LinkController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '링크 설정 변경' })
   @ApiNoContentResponse({ type: ResponseType() })
-  async updateLink(@Param() param: GetLinkRequestDTO, @Body() body: UpdateLinkRequestDTO) {
+  async updateLink(@Param() param: LinkParamDTO, @Body() body: UpdateLinkDTO) {
     return this.linkService.updateLink(param.id, body);
   }
 
@@ -72,7 +72,7 @@ export class LinkController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: '링크 삭제' })
   @ApiNoContentResponse({ type: ResponseType() })
-  async deleteLink(@Param() param: GetLinkRequestDTO) {
+  async deleteLink(@Param() param: LinkParamDTO) {
     return this.linkService.deleteLink(param.id);
   }
 }
