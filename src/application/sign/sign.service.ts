@@ -1,9 +1,10 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
-import { DataSource } from 'typeorm';
+import { Repository } from 'typeorm';
 import * as qs from 'qs';
 
-import { AuthService } from 'src/common/auth/auth.service';
+import { AuthService } from 'src/application/auth/auth.service';
 import { PlatformAccount } from 'src/domain/entities/platform-account.entity';
 import { UserSpecification } from 'src/domain/entities/user-specification.entity';
 import { User } from 'src/domain/entities/user.entity';
@@ -21,13 +22,16 @@ import { SignWithPlatformRequestQueryParamDTO } from './dto/sign-with-platform-r
 @Injectable()
 export class SignService {
   constructor(
-    private readonly dataSource: DataSource,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+    @InjectRepository(PlatformAccount)
+    private readonly platformAccountRepository: Repository<PlatformAccount>,
     private readonly authService: AuthService,
     private readonly kakaoApiService: KakaoApiService,
     private readonly naverApiService: NaverApiService,
   ) {}
 
-  async getSignToken(authKey: string) {
+  async getSignToken(authKey: string): Promise<SignTokenResponseDTO> {
     const tokens = await this.authService.getToken(authKey);
 
     if (!tokens) {
@@ -50,7 +54,7 @@ export class SignService {
     }
   }
 
-  private async createSignUrl(id: string, platform: SignPlatform, redirectUrl: string) {
+  private async createSignUrl(id: string, platform: SignPlatform, redirectUrl: string): Promise<string> {
     const accessToken = this.authService.issueAccessToken(id);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
 
@@ -104,9 +108,7 @@ export class SignService {
   }
 
   private async findOrCreatePlatformAccount(param: GetOrCreatePlatformAccountParam): Promise<PlatformAccount> {
-    const platformAccountRepository = this.dataSource.getRepository(PlatformAccount);
-
-    let platformAccount = await platformAccountRepository.findOne({
+    let platformAccount = await this.platformAccountRepository.findOne({
       relations: { user: true },
       select: { id: true },
       where: { platform: param.platform, accountId: param.accountId },
@@ -118,24 +120,18 @@ export class SignService {
       platformAccount.name = param.name ?? null;
       platformAccount.profileImage = param.profileImage ?? null;
 
-      await platformAccountRepository.update({ id: platformAccount.id }, platformAccount);
+      await this.platformAccountRepository.update({ id: platformAccount.id }, platformAccount);
 
       return platformAccount;
     }
 
-    platformAccount = platformAccountRepository.create(param);
-
-    const userSpecificationRepository = this.dataSource.getRepository(UserSpecification);
-    const userRepository = this.dataSource.getRepository(User);
-    const user = userRepository.create({ platformAccount, specification: userSpecificationRepository.create() });
-    await userRepository.save(user);
-
-    platformAccount.user = user;
+    platformAccount = this.platformAccountRepository.create(param);
+    platformAccount.user = await this.userRepository.save({ platformAccount, specification: new UserSpecification() });
 
     return platformAccount;
   }
 
-  async signWithPlatform(platform: SignPlatform, param: SignWithPlatformRequestQueryParamDTO) {
+  async signWithPlatform(platform: SignPlatform, param: SignWithPlatformRequestQueryParamDTO): Promise<string> {
     const accessToken = await this.getPlatformAccessToken(platform, param.code, param.state);
     const platformProfile = await this.getPlatformProfile(platform, accessToken);
     const platformAccount = await this.findOrCreatePlatformAccount(platformProfile);

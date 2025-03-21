@@ -1,8 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 
 import { Request } from 'express';
-import { And, DataSource, In, LessThanOrEqual, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { DateTime } from 'luxon';
 
 import { Link } from 'src/domain/entities/link.entity';
@@ -11,17 +11,13 @@ import { UserSpecification } from 'src/domain/entities/user-specification.entity
 import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
 import { RequestHeader } from 'src/persistent/enums';
-import { AppConfigFactory } from 'src/common/config/providers/app-config.factory';
 import { ContextService } from 'src/common/context/context.service';
-import { RedisService } from 'src/common/redis/redis.service';
-import { TimerService } from 'src/common/timer/timer.service';
 
 import { LinkDTO } from './dto/link.dto';
 import { GetLinksRequestDTO } from './dto/get-links-request.dto';
 import { GetLinksResponseDTO } from './dto/get-links-response.dto';
 import { CreateLinkRequestDTO } from './dto/create-link-request.dto';
 import { UpdateLinkRequestDTO } from './dto/update-link-request.dto';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class LinkService {
@@ -29,14 +25,13 @@ export class LinkService {
     private readonly dataSource: DataSource,
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
-    @InjectRepository(UserSpecification)
-    private readonly userSpecificationRepository: Repository<UserSpecification>,
     @InjectRepository(LinkStatistics)
     private readonly linkStatisticsRepository: Repository<LinkStatistics>,
-    private readonly appConfigFactory: AppConfigFactory,
+    @InjectRepository(LinkHitHistory)
+    private readonly linkHitHistoryRepository: Repository<LinkHitHistory>,
+    @InjectRepository(UserSpecification)
+    private readonly userSpecificationRepository: Repository<UserSpecification>,
     private readonly contextService: ContextService,
-    private readonly redisService: RedisService,
-    private readonly timerService: TimerService,
   ) {}
 
   async getLinks(param: GetLinksRequestDTO) {
@@ -112,102 +107,72 @@ export class LinkService {
       (Array.isArray(request.headers[RequestHeader.XforwardedFor]) ? request.headers[RequestHeader.XforwardedFor].shift() : request.headers[RequestHeader.XforwardedFor]) ??
       request.ip;
 
-    const linkRepository = this.dataSource.getRepository(Link);
-    const link = await linkRepository.findOne({
-      select: { id: true, url: true },
-      where: { id },
-    });
+    const link = await this.linkRepository.findOneBy({ id });
 
     if (!link || link.status === LinkStatus.Disabled) {
-      throw new NotFoundException();
+      throw new BadRequestException(`not found link by ${id}`);
     }
 
     if (link.expiredAt instanceof Date) {
       const expiredAt = DateTime.fromJSDate(link.expiredAt);
 
       if (expiredAt && expiredAt.diffNow('milliseconds').get('milliseconds') < 0) {
-        throw new NotFoundException();
+        throw new BadRequestException('link has expired');
       }
     }
 
-    await this.dataSource.transaction(async (em) => {
-      const linkHitHistoryRepository = em.getRepository(LinkHitHistory);
-      await linkHitHistoryRepository.insert(linkHitHistoryRepository.create({ ip, link }));
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
 
-      const linkStatisticsRepository = em.getRepository(LinkStatistics);
-      await linkStatisticsRepository
+    try {
+      await this.linkHitHistoryRepository.insert({ ip, link });
+      await this.linkStatisticsRepository
         .createQueryBuilder()
         .update({ hitCount: () => `hitCount + 1` })
         .where({ linkId: id })
         .execute();
-    });
+
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
 
     return new LinkDTO(link);
   }
 
   async updateLink(id: string, body: UpdateLinkRequestDTO) {
-    const linkRepository = this.dataSource.getRepository(Link);
-    const link = await linkRepository.findOneBy({ id });
+    const link = await this.linkRepository.findOneBy({ id });
 
     if (!link || link.userId !== this.contextService.getRequestUserID()) {
       return;
     }
 
-    await linkRepository.update({ id }, { status: body.status && body.status !== link.status ? body.status : undefined });
+    await this.linkRepository.update({ id }, { status: body.status && body.status !== link.status ? body.status : undefined });
   }
 
   async deleteLink(id: string) {
-    await this.dataSource.transaction(async (em) => {
-      const linkRepository = em.getRepository(Link);
-      const link = await linkRepository.findOneBy({ id });
+    const link = await this.linkRepository.findOneBy({ id });
 
-      if (!link || link.userId !== this.contextService.getRequestUserID()) {
-        return;
-      }
-
-      await linkRepository.softDelete({ id });
-      const linkStatisticsRepository = em.getRepository(LinkStatistics);
-      await linkStatisticsRepository.softDelete({ linkId: id });
-    });
-  }
-
-  private createDeleteCronKey() {
-    return ['cron', 'delete-link'].join(':');
-  }
-
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  async handleDeleteCron() {
-    await this.timerService.sleep(this.timerService.getRandomSeconds(1, 3));
-
-    const key = this.createDeleteCronKey();
-
-    if (await this.redisService.has(key)) {
+    if (!link || link.userId !== this.contextService.getRequestUserID()) {
       return;
     }
 
-    await this.redisService.setValue(key, {
-      processId: this.appConfigFactory.getProcessID(),
-      startedAt: new Date(),
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
 
-    await this.dataSource.transaction(async (em) => {
-      const linkRepository = em.getRepository(Link);
-      const links = await linkRepository.find({
-        select: { id: true },
-        where: { expiredAt: And(LessThanOrEqual(new Date())) },
-      });
+    try {
+      await this.linkRepository.softDelete({ id });
+      await this.linkStatisticsRepository.softDelete({ linkId: id });
 
-      if (links.length === 0) {
-        return;
-      }
-
-      const linkIds = links.map((link) => link.id);
-      await linkRepository.softDelete({ id: In(linkIds) });
-
-      const linkStatisticsRepository = em.getRepository(LinkStatistics);
-      await linkStatisticsRepository.softDelete({ linkId: In(linkIds) });
-    });
-
-    await this.redisService.removeValue(key);
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
   }
 }

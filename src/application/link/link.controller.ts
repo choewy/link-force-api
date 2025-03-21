@@ -5,7 +5,7 @@ import { Request } from 'express';
 
 import { SetOptionalRequestUserID, SetRequiredRequestUserID } from 'src/persistent/decorators';
 import { ResponseType } from 'src/persistent/dtos';
-import { UseAuthGuard } from 'src/common/auth/auth.guard';
+import { UseAuthGuard } from 'src/application/auth/auth.guard';
 
 import { LinkService } from './link.service';
 import { LinkDTO } from './dto/link.dto';
