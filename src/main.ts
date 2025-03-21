@@ -1,16 +1,17 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+
+import { Logger } from 'nestjs-pino';
 
 import { AppModule } from './app.module';
 
 import { RequestHeader } from './persistent/enums';
 import { AppConfigFactory } from './common/config/providers/app-config.factory';
 import { ServerConfigFactory } from './common/config/providers/server-config.factory';
-import { ExceptionFilter } from './common/filter/exception.filter';
 import { ContextService } from './common/context/context.service';
+import { ValidationPipe } from './common/pipes/validation.pipe';
+import { ExceptionFilter } from './common/filter/exception.filter';
 import { SerializerInterceptor } from './common/interceptor/serializer.interceptor';
-import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -31,25 +32,9 @@ async function bootstrap() {
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
   app.enableCors({ origin: serverConfig.getCorsOrigin(), credentials: true });
-  app.useGlobalInterceptors(new SerializerInterceptor(app.get(Reflector), app.get(ContextService)));
+  app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new ExceptionFilter(app.get(ContextService)));
-  app.useGlobalPipes(
-    new ValidationPipe({
-      stopAtFirstError: true,
-      validateCustomDecorators: true,
-      transformOptions: {
-        enableCircularCheck: true,
-        enableImplicitConversion: true,
-      },
-      exceptionFactory(errors) {
-        const error = errors.shift();
-        const constraints = error?.constraints ?? {};
-        const message = Object.values(constraints).shift() ?? '';
-
-        throw new BadRequestException(message);
-      },
-    }),
-  );
+  app.useGlobalInterceptors(new SerializerInterceptor(app.get(Reflector), app.get(ContextService)));
 
   await app.listen(serverConfig.getPort());
 }
