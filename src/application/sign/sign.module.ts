@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { User } from 'src/domain/entities/user.entity';
-import { PlatformAccount } from 'src/domain/entities/platform-account.entity';
+import { PlatformAccount } from 'src/application/user/entities/platform-account.entity';
 import { KakaoApiModule } from 'src/external/kakao-api/kakao-api.module';
 import { NaverApiModule } from 'src/external/naver-api/naver-api.module';
 
+import { User } from '../user/entities/user.entity';
 import { AuthModule } from '../auth/auth.module';
 
 import { SignController } from './sign.controller';

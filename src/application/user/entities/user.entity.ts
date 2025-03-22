@@ -1,6 +1,7 @@
 import { CreateDateColumn, DeleteDateColumn, Entity, JoinTable, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
-import { Link } from './link.entity';
+import { Link } from 'src/application/link/entities/link.entity';
+
 import { PlatformAccount } from './platform-account.entity';
 import { UserSpecification } from './user-specification.entity';
 

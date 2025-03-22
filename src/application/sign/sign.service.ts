@@ -5,15 +5,16 @@ import { Repository } from 'typeorm';
 import * as qs from 'qs';
 
 import { AuthService } from 'src/application/auth/auth.service';
-import { PlatformAccount } from 'src/domain/entities/platform-account.entity';
-import { UserSpecification } from 'src/domain/entities/user-specification.entity';
-import { User } from 'src/domain/entities/user.entity';
+import { PlatformAccount } from 'src/application/user/entities/platform-account.entity';
 import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
 import { KakaoProfileResponse } from 'src/external/kakao-api/types';
 import { NaverApiService } from 'src/external/naver-api/naver-api.service';
 import { NaverProfileResponse } from 'src/external/naver-api/types';
 
-import { SignPlatform } from './enums';
+import { SignPlatform } from '../user/persistents/enums';
+import { User } from '../user/entities/user.entity';
+import { UserSpecification } from '../user/entities/user-specification.entity';
+
 import { GetOrCreatePlatformAccountParam } from './types';
 import { GetSignTokenDTO } from './dto/get-sign-token.dto';
 import { GetSignTokenResultDTO } from './dto/get-sign-token-result.dto';

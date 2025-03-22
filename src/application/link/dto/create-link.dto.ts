@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { IsEnum, IsNotEmpty, IsUrl } from 'class-validator';
 
-import { LinkType } from 'src/domain/enums';
+import { LinkType } from '../persistencts/enums';
 
 export class CreateLinkDTO {
   @ApiProperty({ type: String, example: '', description: '축약할 URL' })

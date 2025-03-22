@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 import { JwtConfigFactory } from 'src/common/config/providers/jwt-config.factory';
 import { RedisService } from 'src/common/redis/redis.service';
 
-import { AccessTokenPayload, AuthToken, RefreshTokenPayload, VerifyAccessTokenResult } from './types';
+import { AccessTokenPayload, AuthToken, RefreshTokenPayload, VerifyAccessTokenResult } from './persistents/types';
 
 @Injectable()
 export class AuthService {

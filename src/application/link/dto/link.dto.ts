@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Link } from 'src/domain/entities/link.entity';
-import { LinkType } from 'src/domain/enums';
+import { Link } from 'src/application/link/entities/link.entity';
+
+import { LinkType } from '../persistencts/enums';
 
 export class LinkDTO {
   @ApiProperty({ type: String })

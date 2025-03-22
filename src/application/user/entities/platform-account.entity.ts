@@ -1,7 +1,8 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 
+import { SignPlatform } from '../persistents/enums';
+
 import { User } from './user.entity';
-import { SignPlatform } from 'src/application/sign/enums';
 
 @Entity({ name: 'platform_account', comment: '플랫폼 계정' })
 @Unique('platform_account_unique_key', ['platform', 'accountId'])

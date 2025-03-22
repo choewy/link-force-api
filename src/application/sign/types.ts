@@ -1,4 +1,4 @@
-import { SignPlatform } from './enums';
+import { SignPlatform } from '../user/persistents/enums';
 
 export type GetOrCreatePlatformAccountParam = {
   platform: SignPlatform;

@@ -5,14 +5,15 @@ import { Request } from 'express';
 import { DataSource, Repository } from 'typeorm';
 import { DateTime } from 'luxon';
 
-import { Link } from 'src/domain/entities/link.entity';
-import { LinkStatus, LinkType } from 'src/domain/enums';
-import { UserSpecification } from 'src/domain/entities/user-specification.entity';
-import { LinkStatistics } from 'src/domain/entities/link-statistics.entity';
-import { LinkHitHistory } from 'src/domain/entities/link-hit-history.entity';
 import { RequestHeader } from 'src/persistent/enums';
 import { ContextService } from 'src/common/context/context.service';
 
+import { UserSpecification } from '../user/entities/user-specification.entity';
+
+import { LinkStatus, LinkType } from './persistencts/enums';
+import { Link } from './entities/link.entity';
+import { LinkStatistics } from './entities/link-statistics.entity';
+import { LinkHitHistory } from './entities/link-hit-history.entity';
 import { LinkDTO } from './dto/link.dto';
 import { GetLinksDTO } from './dto/get-links.dto';
 import { GetLinksResultDTO } from './dto/get-links-result.dto';

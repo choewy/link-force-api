@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { Link } from 'src/domain/entities/link.entity';
+import { Link } from 'src/application/link/entities/link.entity';
 
 import { LinkDTO } from './link.dto';
 

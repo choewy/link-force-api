@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { SignPlatform } from '../enums';
+import { SignPlatform } from 'src/application/user/persistents/enums';
 
 export class PlatformLoginCallbackResultDTO {
   @ApiProperty({ type: String, enum: SignPlatform })
