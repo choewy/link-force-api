@@ -1,4 +1,6 @@
-import { BadRequestException, Injectable, ValidationPipe as NestValidationPipe } from '@nestjs/common';
+import { Injectable, ValidationPipe as NestValidationPipe } from '@nestjs/common';
+
+import { ValidationFailedException } from 'src/persistent/exceptions';
 
 @Injectable()
 export class ValidationPipe extends NestValidationPipe {
@@ -13,11 +15,7 @@ export class ValidationPipe extends NestValidationPipe {
         enableImplicitConversion: true,
       },
       exceptionFactory(errors) {
-        const error = errors.shift();
-        const constraints = error?.constraints ?? {};
-        const message = Object.values(constraints).shift() ?? '';
-
-        throw new BadRequestException(message);
+        throw new ValidationFailedException(errors);
       },
     });
   }

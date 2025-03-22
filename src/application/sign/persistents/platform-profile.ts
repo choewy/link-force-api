@@ -3,6 +3,7 @@ import { NaverProfileResponse } from 'src/external/naver-api/types';
 
 import { PlatformAccount } from 'src/application/user/entities/platform-account.entity';
 import { SignPlatform } from 'src/application/user/persistents/enums';
+import { GoogleProfileResponse } from 'src/external/google-api/types';
 
 export class PlatformProfile implements Pick<PlatformAccount, 'platform' | 'accountId' | 'nickname' | 'name' | 'email' | 'profileImage'> {
   constructor(
@@ -34,5 +35,9 @@ export class PlatformProfile implements Pick<PlatformAccount, 'platform' | 'acco
       naverProfile.response.email ?? null,
       naverProfile.response.profile_image ?? null,
     );
+  }
+
+  public static fromGoogleProfile(googleProfile: GoogleProfileResponse) {
+    return new PlatformProfile(SignPlatform.Google, googleProfile.id, googleProfile.name, googleProfile.name, googleProfile.email, googleProfile.picture);
   }
 }

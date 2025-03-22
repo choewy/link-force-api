@@ -35,7 +35,11 @@ export class ResponseEntityDTO<D, E = unknown> {
     return new ResponseEntityDTO(traceId, timestamp, data);
   }
 
-  public static ofError<E>(traceId: string, timestamp: string, error: E) {
+  public static ofError<E>(traceId: string, timestamp: string, error: E, cause?: unknown) {
+    if (cause) {
+      error['cause'] = cause;
+    }
+
     return new ResponseEntityDTO(traceId, timestamp, undefined, error);
   }
 }

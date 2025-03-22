@@ -8,6 +8,7 @@ import { AuthService } from 'src/application/auth/auth.service';
 import { PlatformAccount } from 'src/application/user/entities/platform-account.entity';
 import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
 import { NaverApiService } from 'src/external/naver-api/naver-api.service';
+import { GoogleApiService } from 'src/external/google-api/google-api.service';
 
 import { SignPlatform } from '../user/persistents/enums';
 import { User } from '../user/entities/user.entity';
@@ -29,6 +30,7 @@ export class SignService {
     private readonly authService: AuthService,
     private readonly kakaoApiService: KakaoApiService,
     private readonly naverApiService: NaverApiService,
+    private readonly googleApiService: GoogleApiService,
   ) {}
 
   async getSignToken(getSignTokenDTO: GetSignTokenDTO): Promise<GetSignTokenResultDTO> {
@@ -49,18 +51,12 @@ export class SignService {
       case SignPlatform.Naver:
         return new GetPlatformLoginPageUrlResultDTO(this.naverApiService.getLoginPageURL(state));
 
+      case SignPlatform.Google:
+        return new GetPlatformLoginPageUrlResultDTO(this.googleApiService.getLoginPageURL(state));
+
       default:
         throw new BadRequestException();
     }
-  }
-
-  private async createSignUrl(redirectUrl: string, platform: SignPlatform, id: string): Promise<string> {
-    const accessToken = this.authService.issueAccessToken(id);
-    const refreshToken = this.authService.issueRefreshToken(accessToken);
-
-    const authKey = await this.authService.setToken(accessToken, refreshToken);
-
-    return [redirectUrl, qs.stringify({ platform, authKey })].join('?');
   }
 
   private async getPlatformAccessToken(platform: SignPlatform, code: string, state: string): Promise<string> {
@@ -70,6 +66,9 @@ export class SignService {
 
       case SignPlatform.Naver:
         return (await this.naverApiService.getToken(code, state)).access_token;
+
+      case SignPlatform.Google:
+        return (await this.googleApiService.getToken(code)).access_token;
 
       default:
         throw new BadRequestException();
@@ -83,6 +82,9 @@ export class SignService {
 
       case SignPlatform.Naver:
         return PlatformProfile.fromNaverProfile(await this.naverApiService.getProfile(accessToken));
+
+      case SignPlatform.Google:
+        return PlatformProfile.fromGoogleProfile(await this.googleApiService.getProfile(accessToken));
 
       default:
         throw new BadRequestException();
@@ -111,6 +113,15 @@ export class SignService {
     platformAccount.user = await this.userRepository.save({ platformAccount, specification: new UserSpecification() });
 
     return platformAccount;
+  }
+
+  private async createSignUrl(redirectUrl: string, platform: SignPlatform, id: string): Promise<string> {
+    const accessToken = this.authService.issueAccessToken(id);
+    const refreshToken = this.authService.issueRefreshToken(accessToken);
+
+    const authKey = await this.authService.setToken(accessToken, refreshToken);
+
+    return [redirectUrl, qs.stringify({ platform, authKey })].join('?');
   }
 
   async platformLoginCallback(platform: SignPlatform, param: PlatformLoginCallbackQueryDTO): Promise<string> {

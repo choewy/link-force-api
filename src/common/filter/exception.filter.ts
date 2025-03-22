@@ -23,20 +23,16 @@ export class ExceptionFilter extends BaseExceptionFilter {
 
       default:
         e = new InternalServerErrorException();
-        e = new InternalServerErrorException({
-          message: e.message,
-          statusCode: e.getStatus(),
-          cause: {
-            name: exception.name,
-            message: exception.message,
-          },
-        });
+        e.cause = {
+          name: exception.name,
+          message: exception.message,
+        };
     }
 
     host
       .switchToHttp()
       .getResponse<Response>()
       .status(e.getStatus())
-      .send(ResponseEntityDTO.ofError(this.contextService.getRequestId(), this.contextService.getRequestDateTime(), e.getResponse()));
+      .send(ResponseEntityDTO.ofError(this.contextService.getRequestId(), this.contextService.getRequestDateTime(), e.getResponse(), e.cause));
   }
 }

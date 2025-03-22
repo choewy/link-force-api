@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import { KakaoLoginCallbackParam } from 'src/external/kakao-api/types';
 import { NaverLoginCallbackParam } from 'src/external/naver-api/types';
@@ -25,4 +25,19 @@ export class PlatformLoginCallbackQueryDTO implements KakaoLoginCallbackParam, N
   @IsString()
   @IsOptional()
   error_description?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  @IsOptional()
+  scope?: string;
+
+  @ApiPropertyOptional({ type: Number })
+  @IsInt()
+  @IsOptional()
+  authuser?: number;
+
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  @IsOptional()
+  prompt?: string;
 }

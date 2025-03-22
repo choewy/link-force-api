@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryColumn, UpdateDateColumn, VersionColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 import { User } from 'src/application/user/entities/user.entity';
 
@@ -24,9 +24,6 @@ export class Link {
 
   @Column({ type: 'timestamp', default: null, comment: '만료일시' })
   expiredAt: Date | null;
-
-  @VersionColumn({ comment: '버전' })
-  version: number;
 
   @Column({ type: 'varchar', nullable: true, comment: '사용자 PK' })
   userId: string | null;
