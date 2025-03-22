@@ -34,6 +34,7 @@ export class KakaoApiService {
     const body: KakaoTokenRequestParam = {
       grant_type: 'authorization_code',
       client_id: this.kakaoApiConfigFactory.getLoginClientID(),
+      client_secret: this.kakaoApiConfigFactory.getLoginClientSecret(),
       redirect_uri: this.kakaoApiConfigFactory.getLoginRedirectURI(),
       code,
     };

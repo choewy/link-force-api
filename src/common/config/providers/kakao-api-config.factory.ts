@@ -9,6 +9,10 @@ export class KakaoApiConfigFactory {
     return this.configService.getOrThrow('KAKAO_LOGIN_CLIENT_ID');
   }
 
+  public getLoginClientSecret(): string {
+    return this.configService.getOrThrow('KAKAO_LOGIN_CLIENT_SECRET');
+  }
+
   public getLoginRedirectURI(): string {
     return this.configService.getOrThrow('KAKAO_LOGIN_REDIRECT_URI');
   }

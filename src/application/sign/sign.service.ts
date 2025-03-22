@@ -43,6 +43,7 @@ export class SignService {
     return new GetSignTokenResultDTO(tokens.accessToken, tokens.refreshToken);
   }
 
+  // TODO OPEN ID 방식으로 전환(사용자:플랫폼계정 = 1:N)
   public getPlatformLoginPageUrl(platform: SignPlatform, state: string): GetPlatformLoginPageUrlResultDTO {
     switch (platform) {
       case SignPlatform.Kakao:
