@@ -54,6 +54,10 @@ export class KakaoApiService {
           'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
           Authorization: `Bearer ${accessToken}`,
         },
+        params: {
+          secure_resource: true,
+          property_keys: ['kakao_account.profile', 'kakao_account.name', 'kakao_account.email'],
+        },
       }),
     );
 
