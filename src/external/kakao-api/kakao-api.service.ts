@@ -2,8 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 
 import { lastValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
 import * as qs from 'qs';
 
+import { AxiosErrorException } from 'src/persistent/exceptions';
 import { KakaoApiConfigFactory } from 'src/common/config/providers/kakao-api-config.factory';
 
 import { KakaoLoginURLRequestParam, KakaoProfileResponse, KakaoTokenRequestParam, KakaoTokenResponse } from './types';
@@ -40,7 +42,9 @@ export class KakaoApiService {
       this.httpService.post<KakaoTokenResponse>(url, body, {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
       }),
-    );
+    ).catch((e) => {
+      throw new AxiosErrorException(e as AxiosError, 'Kakao Get Auth Token Error');
+    });
 
     return response.data;
   }
@@ -59,12 +63,12 @@ export class KakaoApiService {
           property_keys: ['kakao_account.profile', 'kakao_account.name', 'kakao_account.email'],
         },
       }),
-    );
+    ).catch((e) => {
+      throw new AxiosErrorException(e as AxiosError, 'Kakao Get Profile Error');
+    });
 
-    const profile = response.data;
+    response.data.id = String(response.data.id);
 
-    profile.id = String(profile.id);
-
-    return profile;
+    return response.data;
   }
 }

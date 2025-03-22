@@ -5,8 +5,8 @@ import { lastValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
 import * as qs from 'qs';
 
-import { GoogleApiConfigFactory } from 'src/common/config/providers/google-api-config.factory';
 import { AxiosErrorException } from 'src/persistent/exceptions';
+import { GoogleApiConfigFactory } from 'src/common/config/providers/google-api-config.factory';
 
 import { GoogleLoginURLRequestParam, GoogleProfileResponse, GoogleTokenRequestParam, GoogleTokenResponse } from './types';
 

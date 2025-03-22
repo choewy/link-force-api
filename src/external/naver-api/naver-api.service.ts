@@ -2,9 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 
 import { lastValueFrom } from 'rxjs';
+import { AxiosError } from 'axios';
 import * as qs from 'qs';
 
+import { AxiosErrorException } from 'src/persistent/exceptions';
 import { NaverApiConfigFactory } from 'src/common/config/providers/naver-api-config.factory';
+
 import { NaverLoginURLRequestParam, NaverProfileResponse, NaverTokenRequestParam, NaverTokenResponse } from './types';
 
 @Injectable()
@@ -36,7 +39,9 @@ export class NaverApiService {
       state,
     } as NaverTokenRequestParam;
 
-    const response = await lastValueFrom(this.httpService.get<NaverTokenResponse>(url, { params }));
+    const response = await lastValueFrom(this.httpService.get<NaverTokenResponse>(url, { params })).catch((e) => {
+      throw new AxiosErrorException(e as AxiosError, 'Naver Get Auth Token Error');
+    });
 
     return response.data;
   }
@@ -51,7 +56,9 @@ export class NaverApiService {
           Authorization: `Bearer ${accessToken}`,
         },
       }),
-    );
+    ).catch((e) => {
+      throw new AxiosErrorException(e as AxiosError, 'Naver Get Profile Error');
+    });
 
     return response.data;
   }
