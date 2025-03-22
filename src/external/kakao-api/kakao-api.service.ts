@@ -43,7 +43,7 @@ export class KakaoApiService {
         headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
       }),
     ).catch((e) => {
-      throw new AxiosErrorException(e as AxiosError, 'Kakao Get Auth Token Error');
+      throw new AxiosErrorException(e as AxiosError, 'KakaoGetAuthTokenFailedError');
     });
 
     return response.data;
@@ -64,7 +64,7 @@ export class KakaoApiService {
         },
       }),
     ).catch((e) => {
-      throw new AxiosErrorException(e as AxiosError, 'Kakao Get Profile Error');
+      throw new AxiosErrorException(e as AxiosError, 'KakaoGetProfileFailedError');
     });
 
     response.data.id = String(response.data.id);

@@ -40,7 +40,7 @@ export class NaverApiService {
     } as NaverTokenRequestParam;
 
     const response = await lastValueFrom(this.httpService.get<NaverTokenResponse>(url, { params })).catch((e) => {
-      throw new AxiosErrorException(e as AxiosError, 'Naver Get Auth Token Error');
+      throw new AxiosErrorException(e as AxiosError, 'NaverGetAuthTokenFailedError');
     });
 
     return response.data;
@@ -57,7 +57,7 @@ export class NaverApiService {
         },
       }),
     ).catch((e) => {
-      throw new AxiosErrorException(e as AxiosError, 'Naver Get Profile Error');
+      throw new AxiosErrorException(e as AxiosError, 'NaverGetProfileFailedError');
     });
 
     return response.data;

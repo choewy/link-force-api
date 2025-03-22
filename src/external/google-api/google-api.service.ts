@@ -46,7 +46,7 @@ export class GoogleApiService {
         params,
       }),
     ).catch((e) => {
-      throw new AxiosErrorException(e as AxiosError, 'Google Get Auth Token Error');
+      throw new AxiosErrorException(e as AxiosError, 'GoogleGetAuthTokenFailedError');
     });
 
     return response.data;
@@ -60,7 +60,7 @@ export class GoogleApiService {
         headers: { Authorization: `Bearer ${accessToken}` },
       }),
     ).catch((e) => {
-      throw new AxiosErrorException(e as AxiosError, 'Google Get Profile Error');
+      throw new AxiosErrorException(e as AxiosError, 'GoogleGetProfileFailedError');
     });
 
     return response.data;
