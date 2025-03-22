@@ -13,26 +13,26 @@ export class ExceptionFilter extends BaseExceptionFilter {
     super();
   }
 
-  catch(exception: HttpException | Error, host: ArgumentsHost): void {
-    let e: HttpException;
+  catch(e: HttpException | Error, host: ArgumentsHost): void {
+    let exception: HttpException;
 
     switch (true) {
-      case exception instanceof HttpException:
-        e = exception;
+      case e instanceof HttpException:
+        exception = e;
         break;
 
       default:
-        e = new InternalServerErrorException();
-        e.cause = {
-          name: exception.name,
-          message: exception.message,
+        exception = new InternalServerErrorException();
+        exception.cause = {
+          name: e.name,
+          message: e.message,
         };
     }
 
     host
       .switchToHttp()
       .getResponse<Response>()
-      .status(e.getStatus())
-      .send(ResponseEntityDTO.ofError(this.contextService.getRequestId(), this.contextService.getRequestDateTime(), e.getResponse(), e.cause));
+      .status(exception.getStatus())
+      .send(ResponseEntityDTO.ofError(this.contextService.getRequestId(), this.contextService.getRequestDateTime(), exception.getResponse(), exception.cause));
   }
 }
