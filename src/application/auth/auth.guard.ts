@@ -29,20 +29,23 @@ export class AuthGuard implements CanActivate {
     const refreshToken =
       (Array.isArray(request.headers[RequestHeader.RefreshToken]) ? request.headers[RequestHeader.RefreshToken].shift() : request.headers[RequestHeader.RefreshToken]) ?? '';
 
-    const { id, isExpired } = this.authService.verifyAccessToken(accessToken);
+    const { id, platformAccountId, isExpired } = this.authService.verifyAccessToken(accessToken);
+
+    console.log({ id, platformAccountId });
 
     this.contextService.setRequestUserID(id);
+    this.contextService.setRequestPlatformAccountID(platformAccountId);
 
-    if (!id && !optionalRequestUserID) {
+    if ((!id || !platformAccountId) && !optionalRequestUserID) {
       throw new UnauthorizedException();
     }
 
-    if (id && isExpired) {
+    if (id && platformAccountId && isExpired) {
       if (!this.authService.verifyRefreshToken(refreshToken, accessToken)) {
         throw new UnauthorizedException();
       }
 
-      const reIssuedAccessToken = this.authService.issueAccessToken(id);
+      const reIssuedAccessToken = this.authService.issueAccessToken(id, platformAccountId);
       const reIssuedRefreshToken = this.authService.issueRefreshToken(reIssuedAccessToken);
 
       response.setHeader(ResponseHeader.AccessToken, reIssuedAccessToken);

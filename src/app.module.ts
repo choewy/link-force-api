@@ -15,6 +15,7 @@ import { RedisConfigFactory } from './common/config/providers/redis-config.facto
 
 import { LinkModule } from './application/link/link.module';
 import { SignModule } from './application/sign/sign.module';
+import { UserModule } from './application/user/user.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SignModule } from './application/sign/sign.module';
       },
     }),
     SignModule,
+    UserModule,
     LinkModule,
   ],
   controllers: [AppController],

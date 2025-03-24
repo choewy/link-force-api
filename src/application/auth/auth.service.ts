@@ -16,9 +16,9 @@ export class AuthService {
     private readonly redisService: RedisService,
   ) {}
 
-  public issueAccessToken(id: string) {
+  public issueAccessToken(id: string, platformAccountId: string) {
     return this.jwtService.sign(
-      { id },
+      { id, platformAccountId },
       {
         secret: this.jwtConfigFactory.getAccessTokenSecret(),
         expiresIn: '1h',
@@ -41,16 +41,18 @@ export class AuthService {
   public verifyAccessToken(accessToken: string, ignoreExpiration = false): VerifyAccessTokenResult {
     const verifyResult: VerifyAccessTokenResult = {
       id: null,
+      platformAccountId: null,
       isExpired: ignoreExpiration,
     };
 
     try {
-      const { id } = this.jwtService.verify<AccessTokenPayload>(accessToken, {
+      const { id, platformAccountId } = this.jwtService.verify<AccessTokenPayload>(accessToken, {
         secret: this.jwtConfigFactory.getAccessTokenSecret(),
         ignoreExpiration,
       });
 
       verifyResult.id = id;
+      verifyResult.platformAccountId = platformAccountId;
     } catch (e) {
       if (e.name === TokenExpiredError.name) {
         return this.verifyAccessToken(accessToken, true);

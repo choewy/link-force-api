@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import * as qs from 'qs';
 
 import { AuthService } from 'src/application/auth/auth.service';
@@ -23,8 +23,11 @@ import { PlatformLoginCallbackQueryDTO } from './dto/platform-login-callback-que
 @Injectable()
 export class SignService {
   constructor(
+    private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(UserSpecification)
+    private readonly userSpecificationRepository: Repository<UserSpecification>,
     @InjectRepository(PlatformAccount)
     private readonly platformAccountRepository: Repository<PlatformAccount>,
     private readonly authService: AuthService,
@@ -43,7 +46,6 @@ export class SignService {
     return new GetSignTokenResultDTO(tokens.accessToken, tokens.refreshToken);
   }
 
-  // TODO OPEN ID 방식으로 전환(사용자:플랫폼계정 = 1:N)
   public getPlatformLoginPageUrl(platform: SignPlatform, state: string): GetPlatformLoginPageUrlResultDTO {
     switch (platform) {
       case SignPlatform.Kakao:
@@ -110,14 +112,31 @@ export class SignService {
       return platformAccount;
     }
 
-    platformAccount = this.platformAccountRepository.create(platformProfile);
-    platformAccount.user = await this.userRepository.save({ platformAccount, specification: new UserSpecification() });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.startTransaction();
+
+    try {
+      const user = this.userRepository.create();
+      await this.userRepository.insert(user);
+
+      platformAccount = this.platformAccountRepository.create(platformProfile);
+      platformAccount.user = user;
+
+      await this.userSpecificationRepository.insert({ user });
+      await this.platformAccountRepository.insert(platformAccount);
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+      throw e;
+    } finally {
+      await queryRunner.release();
+    }
 
     return platformAccount;
   }
 
-  private async createSignUrl(redirectUrl: string, platform: SignPlatform, id: string): Promise<string> {
-    const accessToken = this.authService.issueAccessToken(id);
+  private async createSignUrl(redirectUrl: string, platform: SignPlatform, platformAccount: PlatformAccount): Promise<string> {
+    const accessToken = this.authService.issueAccessToken(platformAccount.user.id, platformAccount.id);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
 
     const authKey = await this.authService.setToken(accessToken, refreshToken);
@@ -126,10 +145,10 @@ export class SignService {
   }
 
   async platformLoginCallback(platform: SignPlatform, param: PlatformLoginCallbackQueryDTO): Promise<string> {
-    const accessToken = await this.getPlatformAccessToken(platform, param.code, param.state);
-    const platformProfile = await this.getPlatformProfile(platform, accessToken);
+    const platformAccessToken = await this.getPlatformAccessToken(platform, param.code, param.state);
+    const platformProfile = await this.getPlatformProfile(platform, platformAccessToken);
     const platformAccount = await this.findOrCreatePlatformAccount(platformProfile);
 
-    return this.createSignUrl(param.state, platform, platformAccount.user.id);
+    return this.createSignUrl(param.state, platform, platformAccount);
   }
 }

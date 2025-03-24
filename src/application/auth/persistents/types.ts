@@ -6,6 +6,7 @@ export type RefreshTokenPayload = JwtPayload & { signature: string };
 
 export type VerifyAccessTokenResult = {
   id: string | null;
+  platformAccountId: string | null;
   isExpired: boolean;
 };
 

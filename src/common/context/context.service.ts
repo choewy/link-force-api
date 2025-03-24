@@ -38,4 +38,12 @@ export class ContextService {
   getRequestUserID(): string | undefined {
     return this.clsService.get(ContextKey.RequestUserID) ?? undefined;
   }
+
+  setRequestPlatformAccountID(id: string | null) {
+    this.clsService.set(ContextKey.RequestPlatformAccountID, id);
+  }
+
+  getRequestPlatformAccountID(): string | undefined {
+    return this.clsService.get(ContextKey.RequestPlatformAccountID) ?? undefined;
+  }
 }
