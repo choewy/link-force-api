@@ -27,8 +27,8 @@ services:
     networks:
       - link-force
 
-  app:
-    container_name: link-force-app
+  api:
+    container_name: link-force-api
     build:
       context: .
       dockerfile: Dockerfile
