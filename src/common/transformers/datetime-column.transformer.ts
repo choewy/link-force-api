@@ -15,7 +15,7 @@ export class DateTimeColumnTransformer implements ValueTransformer {
         break;
 
       case typeof value === 'string':
-        datetime = DateTime.fromJSDate(new Date(value));
+        datetime = DateTime.fromISO(value);
         break;
     }
 
