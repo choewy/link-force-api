@@ -6,8 +6,10 @@ import { Repository } from 'typeorm';
 import { ContextService } from 'src/common/context/context.service';
 
 import { User } from './entities/user.entity';
-import { MyProfileDTO } from './dto/my-profile.dto';
+import { UserProfileDTO } from './dto/user-profile.dto';
 import { PlatformAccount } from './entities/platform-account.entity';
+import { UserListDTO } from './dto/user-list.dto';
+import { GetUserListDTO } from './dto/get-user-list.dto';
 
 @Injectable()
 export class UserService {
@@ -22,8 +24,6 @@ export class UserService {
   async getMyProfile() {
     const userId = this.contextService.getRequestUserID();
     const platformAccountId = this.contextService.getRequestPlatformAccountID();
-
-    console.log({ userId, platformAccountId });
 
     if (!userId || !platformAccountId) {
       throw new UnauthorizedException();
@@ -42,6 +42,18 @@ export class UserService {
       throw new UnauthorizedException();
     }
 
-    return new MyProfileDTO(platformAccount);
+    return new UserProfileDTO(platformAccount);
+  }
+
+  async getUserList(queryParam: GetUserListDTO): Promise<UserListDTO> {
+    const [users, count] = await this.userRepository
+      .createQueryBuilder('user')
+      .innerJoinAndMapOne('user.platformAccount', 'user.platformAccount', 'platformAccount')
+      .orderBy('user.createdAt', 'DESC')
+      .skip(queryParam.skip)
+      .take(queryParam.take)
+      .getManyAndCount();
+
+    return new UserListDTO(users, count);
   }
 }
