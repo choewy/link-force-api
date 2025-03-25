@@ -1,6 +1,7 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTable, ManyToOne, OneToMany, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 import { User } from 'src/application/user/entities/user.entity';
+import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
 
 import { LINK_ID_LENGTH } from '../persistencts/constants';
 import { LinkStatus, LinkType } from '../persistencts/enums';
@@ -40,13 +41,13 @@ export class Link {
   @JoinTable()
   hitHistories: LinkHitHistory[];
 
-  @CreateDateColumn({ comment: '생성일시' })
+  @CreateDateColumn({ comment: '생성일시', transformer: new DateTimeColumnTransformer() })
   readonly createdAt: Date;
 
-  @UpdateDateColumn({ comment: '수정일시' })
+  @UpdateDateColumn({ comment: '수정일시', transformer: new DateTimeColumnTransformer() })
   readonly updatedAt: Date;
 
-  @DeleteDateColumn({ comment: '삭제일시' })
+  @DeleteDateColumn({ comment: '삭제일시', transformer: new DateTimeColumnTransformer() })
   readonly deletedAt: Date | null;
 
   public static createId() {

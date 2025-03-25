@@ -25,8 +25,8 @@ export class UserController {
 
   // TODO 관리자 권한
   @Get('list')
-  @UseAuthGuard()
-  @SetRequiredRequestUserID()
+  // @UseAuthGuard()
+  // @SetRequiredRequestUserID()
   @ApiOperation({ summary: '사용자 목록 조회' })
   @ApiOkResponse({ type: UserListDTO })
   async getUserList(@Query() queryParam: GetUserListDTO) {

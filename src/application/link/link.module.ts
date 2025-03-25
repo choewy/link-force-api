@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { TimerModule } from 'src/common/timer/timer.module';
 import { Link } from 'src/application/link/entities/link.entity';
 import { LinkStatistics } from 'src/application/link/entities/link-statistics.entity';
 import { LinkHitHistory } from 'src/application/link/entities/link-hit-history.entity';
@@ -13,7 +12,7 @@ import { LinkController } from './link.controller';
 import { LinkService } from './link.service';
 
 @Module({
-  imports: [AuthModule, TimerModule, TypeOrmModule.forFeature([Link, LinkStatistics, LinkHitHistory, UserSpecification])],
+  imports: [AuthModule, TypeOrmModule.forFeature([Link, LinkStatistics, LinkHitHistory, UserSpecification])],
   controllers: [LinkController],
   providers: [LinkService],
   exports: [LinkService],

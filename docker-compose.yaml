@@ -5,6 +5,7 @@ services:
     container_name: link-force-postgres
     image: postgres:16
     environment:
+      TZ: Asia/Seoul
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres

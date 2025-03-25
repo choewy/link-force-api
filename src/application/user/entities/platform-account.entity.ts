@@ -1,5 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
 
+import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
+
 import { SignPlatform } from '../persistents/enums';
 
 import { User } from './user.entity';
@@ -32,9 +34,9 @@ export class PlatformAccount {
   @JoinColumn()
   user: User;
 
-  @CreateDateColumn({ comment: '생성일시' })
+  @CreateDateColumn({ comment: '생성일시', transformer: new DateTimeColumnTransformer() })
   readonly createdAt: Date;
 
-  @UpdateDateColumn({ comment: '수정일시' })
+  @UpdateDateColumn({ comment: '수정일시', transformer: new DateTimeColumnTransformer() })
   readonly updatedAt: Date;
 }

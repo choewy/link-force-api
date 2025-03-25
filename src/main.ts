@@ -10,8 +10,8 @@ import { AppConfigFactory } from './common/config/providers/app-config.factory';
 import { ServerConfigFactory } from './common/config/providers/server-config.factory';
 import { ContextService } from './common/context/context.service';
 import { ValidationPipe } from './common/pipes/validation.pipe';
-import { ExceptionFilter } from './common/filter/exception.filter';
-import { SerializerInterceptor } from './common/interceptor/serializer.interceptor';
+import { ExceptionFilter } from './common/filters/exception.filter';
+import { SerializerInterceptor } from './common/interceptors/serializer.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });

@@ -1,5 +1,7 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
+import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
+
 import { User } from './user.entity';
 
 @Entity({ name: 'user_specification', comment: '사용자 상세' })
@@ -14,9 +16,9 @@ export class UserSpecification {
   @JoinColumn()
   user: User;
 
-  @CreateDateColumn({ comment: '생성일시' })
+  @CreateDateColumn({ comment: '생성일시', transformer: new DateTimeColumnTransformer() })
   readonly createdAt: Date;
 
-  @UpdateDateColumn({ comment: '수정일시' })
+  @UpdateDateColumn({ comment: '수정일시', transformer: new DateTimeColumnTransformer() })
   readonly updatedAt: Date;
 }
