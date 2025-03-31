@@ -1,19 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
+import { InjectRepository } from '@nestjs/typeorm';
 
-import { v4 } from 'uuid';
+import { Repository } from 'typeorm';
 
 import { JwtConfigFactory } from 'src/common/config/providers/jwt-config.factory';
-import { RedisService } from 'src/common/redis/redis.service';
 
-import { AccessTokenPayload, AuthToken, RefreshTokenPayload, VerifyAccessTokenResult } from './persistents/types';
+import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './persistents/types';
+
+import { AuthToken } from './entities/auth-token.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly jwtConfigFactory: JwtConfigFactory,
-    private readonly redisService: RedisService,
+    @InjectRepository(AuthToken)
+    private readonly authTokenRepository: Repository<AuthToken>,
   ) {}
 
   public issueAccessToken(id: string, platformAccountId: string) {
@@ -70,25 +73,19 @@ export class AuthService {
     return signature === accessToken.split('.').pop();
   }
 
-  private createTokenKey(authKey: string) {
-    return ['jwt', authKey].join(':');
-  }
-
   async setToken(accessToken: string, refreshToken: string): Promise<string> {
-    const authKey = v4();
-    const key = this.createTokenKey(authKey);
+    const authToken = this.authTokenRepository.create({ accessToken, refreshToken });
 
-    await this.redisService.setValue<AuthToken>(key, { accessToken, refreshToken }, 180);
+    await this.authTokenRepository.insert(authToken);
 
-    return authKey;
+    return authToken.id;
   }
 
   async getToken(authKey: string): Promise<AuthToken | null> {
-    const key = this.createTokenKey(authKey);
-    const token = (await this.redisService.getValue<AuthToken>(key)) ?? null;
+    const authToken = await this.authTokenRepository.findOneBy({ id: authKey });
 
-    await this.redisService.removeValue(key);
+    await this.authTokenRepository.delete({ id: authKey });
 
-    return token;
+    return authToken;
   }
 }

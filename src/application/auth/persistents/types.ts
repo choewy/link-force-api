@@ -9,8 +9,3 @@ export type VerifyAccessTokenResult = {
   platformAccountId: string | null;
   isExpired: boolean;
 };
-
-export type AuthToken = {
-  accessToken: string;
-  refreshToken: string;
-};
