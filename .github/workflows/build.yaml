@@ -1,0 +1,50 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*-dev'
+      - 'v*-main'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set environment variables based on tag
+      id: set-env
+      run: |
+        if [[ ${{ github.ref_name }} == *"-dev" ]]; then
+          echo "AWS_ECR_REPOSITORY=${{ secrets.AWS_ECR_REPOSITORY_PREFIX }}-dev" >> $GITHUB_ENV
+        elif [[ ${{ github.ref_name }} == *"-main" ]]; then
+          echo "AWS_ECR_REPOSITORY=${{ secrets.AWS_ECR_REPOSITORY_PREFIX }}-prod" >> $GITHUB_ENV
+        else
+          echo "Invalid tag format. Tag must end with -dev or -main"
+          exit 1
+        fi
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ secrets.AWS_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Build, tag, and push image to Amazon ECR
+      id: build-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ env.AWS_ECR_REPOSITORY }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.ref_name }} .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.ref_name }}
