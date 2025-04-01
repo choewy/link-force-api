@@ -1,0 +1,29 @@
+name: Tagging
+
+on:
+  workflow_run:
+    workflows: ['Version']
+    types:
+      - completed
+
+jobs:
+  version:
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node: [20]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tagging
+        run: |
+          version=$(cat package.json | grep '"version"' | awk -F '"' '{print $4}')
+          branch_name=${GITHUB_REF#refs/heads/}
+          tag=v${version}-${branch_name}
+          git tag $tag
+          git push origin $tag
