@@ -48,3 +48,19 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.ref_name }} .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.ref_name }}
+
+    - name: Fill in the new image ID in the Amazon ECS task definition
+      id: task-definition
+      uses: aws-actions/amazon-ecs-render-task-definition@v4
+      with:
+        task-definition: ${{ secrets.AWS_ECS_TASK_DEFINITION }}
+        container-name: ${{ secrets.AWS_ECS_CONTAINER_NAME }}
+        image: ${{ steps.build-image.outputs.image }}
+
+    - name: Deploy Amazon ECS task definition
+      uses: aws-actions/amazon-ecs-deploy-task-definition@v4
+      with:
+        task-definition: ${{ steps.task-definition.outputs.task-definition }}
+        service: ${{ secrets.AWS_ECS_SERVICE }}
+        cluster: ${{ secrets.AWS_ECS_CLUSTER }}
+        wait-for-service-stability: true 
