@@ -10,7 +10,7 @@ import { ContextService } from 'src/common/context/context.service';
 
 import { UserSpecification } from '../user/entities/user-specification.entity';
 
-import { LinkStatus, LinkType } from './persistencts/enums';
+import { LinkStatus, LinkType } from './persistents/enums';
 import { Link } from './entities/link.entity';
 import { LinkStatistics } from './entities/link-statistics.entity';
 import { LinkHitHistory } from './entities/link-hit-history.entity';

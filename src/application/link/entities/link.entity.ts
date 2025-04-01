@@ -3,8 +3,8 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTab
 import { User } from 'src/application/user/entities/user.entity';
 import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
 
-import { LINK_ID_LENGTH } from '../persistencts/constants';
-import { LinkStatus, LinkType } from '../persistencts/enums';
+import { LINK_ID_LENGTH } from '../persistents/constants';
+import { LinkStatus, LinkType } from '../persistents/enums';
 
 import { LinkHitHistory } from './link-hit-history.entity';
 import { LinkStatistics } from './link-statistics.entity';
