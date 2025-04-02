@@ -46,6 +46,7 @@ jobs:
           commit_hash=$(git rev-parse --short HEAD)
           tag=${version}-${commit_hash}-${{ env.TAG_SUFFIX }}
 
+          echo "TAG=$tag" >> $GITHUB_ENV
           echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Set Version
@@ -59,5 +60,5 @@ jobs:
 
       - name: Push Tag
         run: |
-          git tag -a ${{ env.TAG_NAME }} -m "Tagging ${{ env.TAG_NAME }}"
-          git push origin ${{ env.TAG_NAME }}
+          git tag -a ${{ env.TAG }} -m "Tagging ${{ env.TAG }}"
+          git push origin ${{ env.TAG }}
