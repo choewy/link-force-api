@@ -17,4 +17,4 @@
 
 ### `send-secrets-to-slack.yaml`
 
-- `SLACK_ENVIRONMENT_WEBHOOK_URL`: Slack 환경변수 웹훅 URL
+- `SLACK_SECRET_WEBHOOK_URL`: Slack 환경변수 웹훅 URL
