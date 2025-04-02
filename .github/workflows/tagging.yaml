@@ -9,6 +9,8 @@ on:
       - 'tsconfig*.json'
       - 'nset-cli.json'
       - 'Dockerfile'
+      - '.github/workflows/tagging.yaml'
+      - '.github/workflows/deploy.yaml'
 
 jobs:
   version:
