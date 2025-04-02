@@ -71,7 +71,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           ECR_REPOSITORY: ${{ env.AWS_ECR_REPOSITORY }}
         run: |
-          docker build --no-ignore -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.get-tag.outputs.tag }} .
+          rm -rf .dockerignore
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.get-tag.outputs.tag }} .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ steps.get-tag.outputs.tag }}
 
   deploy:
