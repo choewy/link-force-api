@@ -3,13 +3,12 @@ name: Version
 on:
   push:
     branches: ['main', 'dev']
-    push:
-      paths:
-        - 'src/**'
-        - 'package*.json'
-        - 'tsconfig*.json'
-        - 'nset-cli.json'
-        - 'Dockerfile'
+    paths:
+      - 'src/**'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - 'nset-cli.json'
+      - 'Dockerfile'
 
 jobs:
   version:
