@@ -40,7 +40,7 @@ jobs:
           if [[ ${{ steps.get-tag.outputs.tag }} == *"-dev" ]]; then
             echo "${{ secrets.ENV_DEV }}" > .env
             echo "AWS_ECR_REPOSITORY=${{ secrets.AWS_ECR_REPOSITORY_PREFIX }}-dev" >> $GITHUB_ENV
-          elif [[ ${{ steps.get-tag.outputs.tag }} == *"-main" ]]; then
+          elif [[ ${{ steps.get-tag.outputs.tag }} == *"-prod" ]]; then
             echo "${{ secrets.ENV_PROD }}" > .env
             echo "AWS_ECR_REPOSITORY=${{ secrets.AWS_ECR_REPOSITORY_PREFIX }}-prod" >> $GITHUB_ENV
           else
