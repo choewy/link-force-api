@@ -13,17 +13,18 @@ jobs:
     strategy:
       matrix:
         node: [20]
+        branch: [dev, main]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ matrix.branch }}
 
       - name: Tagging
         run: |
           version=$(cat package.json | grep '"version"' | awk -F '"' '{print $4}')
-          branch_name=${GITHUB_REF#refs/heads/}
-          tag=${version}-${branch_name}
+          tag=${version}-${matrix.branch}
           git tag $tag
           git push origin $tag
