@@ -42,13 +42,6 @@ jobs:
             exit 1
           fi
 
-          version=$(cat package.json | grep '"version"' | awk -F '"' '{print $4}')
-          commit_hash=$(git rev-parse --short HEAD)
-          tag=${version}-${commit_hash}-${{ env.TAG_SUFFIX }}
-
-          echo "TAG=$tag" >> $GITHUB_ENV
-          echo "tag=$tag" >> $GITHUB_OUTPUT
-
       - name: Set Version
         run: |
           if [ "${{ env.TAG_SUFFIX }}" == "prod" ]; then
@@ -57,6 +50,14 @@ jobs:
             npm version patch
             git push origin ${{ github.ref_name }}
           fi
+
+      - name: Create Tag
+        run: |
+          version=$(cat package.json | grep '"version"' | awk -F '"' '{print $4}')
+          commit_hash=$(git rev-parse --short HEAD)
+          tag=${version}-${commit_hash}-${{ env.TAG_SUFFIX }}
+          echo "TAG=$tag" >> $GITHUB_ENV
+          echo "tag=$tag" >> $GITHUB_OUTPUT
 
       - name: Push Tag
         run: |
