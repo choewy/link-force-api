@@ -7,8 +7,13 @@ on:
       - 'v*-main'
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        node: [20]
+
     permissions:
       id-token: write
       contents: read
@@ -17,17 +22,29 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Set environment variables based on tag
+    - name: Set Node.js version
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node }}
+
+    - name: Set Environment Variables
       id: set-env
       run: |
         if [[ ${{ github.ref_name }} == *"-dev" ]]; then
+          echo "${{ secrets.ENV_DEV }}" > .env
           echo "AWS_ECR_REPOSITORY=${{ secrets.AWS_ECR_REPOSITORY_PREFIX }}-dev" >> $GITHUB_ENV
         elif [[ ${{ github.ref_name }} == *"-main" ]]; then
+          echo "${{ secrets.ENV_PROD }}" > .env
           echo "AWS_ECR_REPOSITORY=${{ secrets.AWS_ECR_REPOSITORY_PREFIX }}-prod" >> $GITHUB_ENV
         else
           echo "Invalid tag format. Tag must end with -dev or -main"
           exit 1
         fi
+
+    - name: Build Application
+      run: |
+        npm ci
+        npm run build
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -49,13 +66,28 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.ref_name }} .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.ref_name }}
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-22.04
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-region: ${{ secrets.AWS_REGION }}
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-definition
       uses: aws-actions/amazon-ecs-render-task-definition@v4
       with:
         task-definition: ${{ secrets.AWS_ECS_TASK_DEFINITION }}
         container-name: ${{ secrets.AWS_ECS_CONTAINER_NAME }}
-        image: ${{ steps.build-image.outputs.image }}
+        image: ${{ needs.build.outputs.image }}
 
     - name: Deploy Amazon ECS task definition
       uses: aws-actions/amazon-ecs-deploy-task-definition@v4
