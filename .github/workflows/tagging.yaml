@@ -33,6 +33,9 @@ jobs:
 
       - name: Set Environment Variables
         run: |
+          git config --global user.name "actions"
+          git config --global user.email "actions@github.com"
+
           if [ "${{ github.ref_name }}" == "dev" ]; then
             echo "TAG_SUFFIX=dev" >> $GITHUB_ENV
           elif [ "${{ github.ref_name }}" == "main" ]; then
@@ -45,13 +48,8 @@ jobs:
       - name: Set Version
         run: |
           if [ "${{ env.TAG_SUFFIX }}" == "prod" ]; then
-            git config --global user.name "actions"
-            git config --global user.email "actions@github.com"
             npm version patch
             git push origin ${{ github.ref_name }}
-            git checkout dev
-            git merge ${{ github.ref_name }}
-            git push origin dev
           fi
 
       - name: Create Tag
