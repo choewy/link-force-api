@@ -17,17 +17,16 @@ export class TypeOrmConfigFactory {
     const nodeEnv = this.appConfigFactory.getNodeEnv();
 
     return {
-      type: 'sqlite',
-      // host: this.configService.getOrThrow('DB_HOST'),
-      // port: +this.configService.getOrThrow('DB_PORT'),
-      // username: this.configService.getOrThrow('DB_USERNAME'),
-      // password: this.configService.getOrThrow('DB_PASSWORD'),
-      // database: this.configService.getOrThrow('DB_DATABASE'),
-      database: 'db.sqlite',
+      type: 'mysql',
+      host: this.configService.getOrThrow('DB_HOST'),
+      port: +this.configService.getOrThrow('DB_PORT'),
+      username: this.configService.getOrThrow('DB_USERNAME'),
+      password: this.configService.getOrThrow('DB_PASSWORD'),
+      database: this.configService.getOrThrow('DB_DATABASE'),
       synchronize: nodeEnv.isLocal() && this.configService.get('DB_SYNCHRONIZE') === 'true',
       logging: nodeEnv.isLocal() ? ['query', 'info', 'error', 'warn'] : ['error', 'warn'],
       namingStrategy: new SnakeNamingStrategy(),
-      // entities: [`${process.cwd()}/dist/**/*.entity.{js,ts}`],
+      entities: [`${process.cwd()}/dist/**/*.entity.{js,ts}`],
     };
   }
 }

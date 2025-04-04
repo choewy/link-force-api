@@ -1,8 +1,8 @@
-name: link-force
+name: snipfy
 
 services:
   postgres:
-    container_name: link-force-postgres
+    container_name: snipfy-postgres
     image: postgres:16
     environment:
       POSTGRES_USER: postgres
@@ -13,10 +13,10 @@ services:
     ports:
       - 54321:5432
     networks:
-      - link-force
+      - snipfy
 
   redis:
-    container_name: link-force-redis
+    container_name: snipfy-redis
     image: redis/redis-stack-server:7.2.0-v10
     volumes:
       - ./docker/redis/redis.conf/:/redis-stack.conf
@@ -25,13 +25,13 @@ services:
     ports:
       - 6385:6379
     networks:
-      - link-force
+      - snipfy
 
   api:
-    container_name: link-force-api
+    container_name: snipfy-api
     build:
       context: .
-      dockerfile: dockerfile
+      dockerfile: Dockerfile.dev
     depends_on:
       - postgres
       - redis
@@ -41,8 +41,8 @@ services:
     ports:
       - 4000:4000
     networks:
-      - link-force
+      - snipfy
 
 networks:
-  link-force:
+  snipfy:
     driver: bridge
