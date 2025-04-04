@@ -9,16 +9,17 @@ import { RequestHeader } from 'src/persistent/enums';
 import { ContextService } from 'src/common/context/context.service';
 
 import { UserSpecification } from '../user/entities/user-specification.entity';
+import { Statistics } from '../statistics/entities/statistics.entity';
+import { HitLog } from '../log/entities/hit-log.entity';
 
 import { LinkStatus, LinkType } from './persistents/enums';
 import { Link } from './entities/link.entity';
-import { LinkStatistics } from './entities/link-statistics.entity';
-import { LinkHitHistory } from './entities/link-hit-history.entity';
 import { LinkDTO } from './dto/link.dto';
 import { GetLinksDTO } from './dto/get-links.dto';
 import { GetLinksResultDTO } from './dto/get-links-result.dto';
 import { CreateLinkDTO } from './dto/create-link.dto';
 import { UpdateLinkDTO } from './dto/update-link.dto';
+import { HitLinkResultDTO } from './dto/hit-link-result.dto';
 
 @Injectable()
 export class LinkService {
@@ -26,10 +27,10 @@ export class LinkService {
     private readonly dataSource: DataSource,
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
-    @InjectRepository(LinkStatistics)
-    private readonly linkStatisticsRepository: Repository<LinkStatistics>,
-    @InjectRepository(LinkHitHistory)
-    private readonly linkHitHistoryRepository: Repository<LinkHitHistory>,
+    @InjectRepository(Statistics)
+    private readonly statisticsRepository: Repository<Statistics>,
+    @InjectRepository(HitLog)
+    private readonly hitLogRepository: Repository<HitLog>,
     @InjectRepository(UserSpecification)
     private readonly userSpecificationRepository: Repository<UserSpecification>,
     private readonly contextService: ContextService,
@@ -98,7 +99,7 @@ export class LinkService {
         retryCount++;
       }
 
-      await this.linkStatisticsRepository.insert({ linkId: link.id });
+      await this.statisticsRepository.insert({ linkId: link.id });
 
       if (userId) {
         await this.userSpecificationRepository
@@ -119,7 +120,7 @@ export class LinkService {
     return new LinkDTO(link);
   }
 
-  async hitLink(request: Request, id: string) {
+  async hitLink(request: Request, id: string): Promise<HitLinkResultDTO> {
     const ip =
       (Array.isArray(request.headers[RequestHeader.XforwardedFor]) ? request.headers[RequestHeader.XforwardedFor].shift() : request.headers[RequestHeader.XforwardedFor]) ??
       request.ip;
@@ -142,8 +143,8 @@ export class LinkService {
     await queryRunner.startTransaction();
 
     try {
-      await this.linkHitHistoryRepository.insert({ ip, link });
-      await this.linkStatisticsRepository
+      await this.hitLogRepository.insert({ ip, link });
+      await this.statisticsRepository
         .createQueryBuilder()
         .update({ hitCount: () => `hitCount + 1` })
         .where({ linkId: id })
@@ -157,7 +158,7 @@ export class LinkService {
       await queryRunner.release();
     }
 
-    return new LinkDTO(link);
+    return new HitLinkResultDTO(link);
   }
 
   async updateLink(id: string, body: UpdateLinkDTO) {
@@ -182,7 +183,8 @@ export class LinkService {
 
     try {
       await this.linkRepository.softDelete({ id });
-      await this.linkStatisticsRepository.softDelete({ linkId: id });
+      await this.hitLogRepository.softDelete({ linkId: id });
+      await this.statisticsRepository.softDelete({ linkId: id });
 
       await queryRunner.commitTransaction();
     } catch (e) {

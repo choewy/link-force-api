@@ -1,11 +1,10 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOne, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
 import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
+import { Link } from 'src/application/link/entities/link.entity';
 
-import { Link } from './link.entity';
-
-@Entity({ name: 'link_statistics', comment: '링크 통계' })
-export class LinkStatistics {
+@Entity({ name: 'statistics', comment: '링크 통계' })
+export class Statistics {
   @PrimaryColumn({ type: 'varchar', comment: '링크 PK' })
   linkId: string;
 

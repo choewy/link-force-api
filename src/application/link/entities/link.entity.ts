@@ -2,12 +2,11 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTab
 
 import { User } from 'src/application/user/entities/user.entity';
 import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
+import { Statistics } from 'src/application/statistics/entities/statistics.entity';
+import { HitLog } from 'src/application/log/entities/hit-log.entity';
 
 import { LINK_ID_LENGTH } from '../persistents/constants';
 import { LinkStatus, LinkType } from '../persistents/enums';
-
-import { LinkHitHistory } from './link-hit-history.entity';
-import { LinkStatistics } from './link-statistics.entity';
 
 @Entity({ name: 'link', comment: '링크' })
 export class Link {
@@ -33,13 +32,13 @@ export class Link {
   @JoinColumn()
   user: User | null;
 
-  @OneToOne(() => LinkStatistics, (e) => e.link, { cascade: true })
+  @OneToOne(() => Statistics, (e) => e.link, { cascade: true })
   @JoinTable()
-  statistics: LinkStatistics;
+  statistics: Statistics;
 
-  @OneToMany(() => LinkHitHistory, (e) => e.link, { cascade: true })
+  @OneToMany(() => HitLog, (e) => e.link, { cascade: true })
   @JoinTable()
-  hitHistories: LinkHitHistory[];
+  logs: HitLog[];
 
   @CreateDateColumn({ comment: '생성일시', transformer: new DateTimeColumnTransformer() })
   readonly createdAt: Date;

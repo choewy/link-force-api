@@ -8,7 +8,9 @@ export class IsNotHostUrlConstraint implements ValidatorConstraintInterface {
       return false;
     }
 
-    return value.includes(process.env.HOST ?? v4());
+    const host = (process.env.HOST ?? v4()).replace(/^https?:\/\//, '');
+
+    return !value.includes(host);
   }
 
   defaultMessage(): string {

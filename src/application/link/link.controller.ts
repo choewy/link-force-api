@@ -14,6 +14,7 @@ import { GetLinksDTO } from './dto/get-links.dto';
 import { GetLinksResultDTO } from './dto/get-links-result.dto';
 import { CreateLinkDTO } from './dto/create-link.dto';
 import { UpdateLinkDTO } from './dto/update-link.dto';
+import { HitLinkResultDTO } from './dto/hit-link-result.dto';
 
 @ApiTags('링크')
 @Controller('links')
@@ -51,7 +52,7 @@ export class LinkController {
   @Post(':id/hit')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '링크 접속' })
-  @ApiOkResponse({ type: ResponseType(LinkDTO) })
+  @ApiOkResponse({ type: ResponseType(HitLinkResultDTO) })
   async hitLink(@Req() request: Request, @Param() param: LinkParamDTO) {
     return this.linkService.hitLink(request, param.id);
   }

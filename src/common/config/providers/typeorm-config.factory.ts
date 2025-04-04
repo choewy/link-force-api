@@ -17,7 +17,7 @@ export class TypeOrmConfigFactory {
     const nodeEnv = this.appConfigFactory.getNodeEnv();
 
     return {
-      type: 'mysql',
+      type: 'postgres',
       host: this.configService.getOrThrow('DB_HOST'),
       port: +this.configService.getOrThrow('DB_PORT'),
       username: this.configService.getOrThrow('DB_USERNAME'),

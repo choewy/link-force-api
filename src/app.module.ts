@@ -11,9 +11,11 @@ import { ContextModule } from './common/context/context.module';
 import { ConfigFactoryModule } from './common/config/config-factory.module';
 import { TypeOrmConfigFactory } from './common/config/providers/typeorm-config.factory';
 
-import { LinkModule } from './application/link/link.module';
 import { SignModule } from './application/sign/sign.module';
 import { UserModule } from './application/user/user.module';
+import { LinkModule } from './application/link/link.module';
+import { LogModule } from './application/log/log.module';
+import { StatisticsModule } from './application/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { UserModule } from './application/user/user.module';
     SignModule,
     UserModule,
     LinkModule,
+    LogModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
