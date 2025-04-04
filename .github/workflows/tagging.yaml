@@ -53,6 +53,7 @@ jobs:
           fi
 
       - name: Create Tag
+        id: create-tag
         run: |
           datetime=$(TZ=Asia/Seoul date '+%Y%m%d%H%M')
           version=$(cat package.json | grep '"version"' | awk -F '"' '{print $4}')
@@ -63,5 +64,18 @@ jobs:
 
       - name: Push Tag
         run: |
-          git tag -a ${{ env.TAG }} -m "Tagging ${{ env.TAG }}"
-          git push origin ${{ env.TAG }}
+          tag=${{ steps.create-tag.outputs.tag }}
+          git tag -a $tag -m "Tagging $tag"
+          git push origin $tag
+
+      - name: Save Tag
+        run: |
+          tag=${{ steps.create-tag.outputs.tag }}
+          echo $tag > tag_info.txt
+
+      - name: Upload tag info
+        uses: actions/upload-artifact@v4
+        with:
+          name: tag
+          path: tag_info.txt
+          retention-days: 1
