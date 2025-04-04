@@ -71,11 +71,11 @@ jobs:
       - name: Save Tag
         run: |
           tag=${{ steps.create-tag.outputs.tag }}
-          echo $tag > tag_info.txt
+          echo $tag > tag.txt
 
       - name: Upload tag info
         uses: actions/upload-artifact@v4
         with:
           name: tag
-          path: tag_info.txt
+          path: tag.txt
           retention-days: 1
