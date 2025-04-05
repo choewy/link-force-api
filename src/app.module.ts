@@ -16,6 +16,8 @@ import { UserModule } from './application/user/user.module';
 import { LinkModule } from './application/link/link.module';
 import { HistoryModule } from './application/history/history.module';
 import { StatisticsModule } from './application/statistics/statistics.module';
+import { MembershipModule } from './application/membership/membership.module';
+import { PaymentModule } from './application/payment/payment.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { StatisticsModule } from './application/statistics/statistics.module';
     LinkModule,
     HistoryModule,
     StatisticsModule,
+    MembershipModule,
+    PaymentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

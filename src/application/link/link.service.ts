@@ -70,12 +70,7 @@ export class LinkService {
     const link = this.linkRepository.create({
       userId,
       url: body.url,
-      expiredAt:
-        userId === null
-          ? DateTime.local()
-              .plus({ days: userId === null ? 7 : 30 })
-              .toJSDate()
-          : null,
+      expiredAt: userId === null ? DateTime.local().plus({ days: 30 }).toJSDate() : null,
     });
 
     const queryRunner = this.dataSource.createQueryRunner();
@@ -122,7 +117,7 @@ export class LinkService {
 
   async hitLink(id: string): Promise<HitLinkResultDTO> {
     const link = await this.linkRepository.findOne({
-      relations: { user: true },
+      relations: { user: { membership: true } },
       where: { id },
     });
 
@@ -171,8 +166,7 @@ export class LinkService {
       await queryRunner.release();
     }
 
-    // TODO 결제 여부에 따라 광고 노출 여부 추가
-    return new HitLinkResultDTO(link, link.user === null);
+    return new HitLinkResultDTO(link, link.user?.membership == null);
   }
 
   async updateLink(id: string, body: UpdateLinkDTO) {
