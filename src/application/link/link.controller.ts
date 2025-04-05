@@ -1,7 +1,5 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-
-import { Request } from 'express';
 
 import { SetOptionalRequestUserID, SetRequiredRequestUserID } from 'src/persistent/decorators';
 import { ResponseType } from 'src/persistent/dtos';
@@ -10,7 +8,7 @@ import { UseAuthGuard } from 'src/application/auth/auth.guard';
 import { LinkService } from './link.service';
 import { LinkParamDTO } from './dto/link-param.dto';
 import { LinkDTO } from './dto/link.dto';
-import { GetLinksDTO } from './dto/get-links.dto';
+import { GetLinksQueryDTO } from './dto/get-links.dto';
 import { GetLinksResultDTO } from './dto/get-links-result.dto';
 import { CreateLinkDTO } from './dto/create-link.dto';
 import { UpdateLinkDTO } from './dto/update-link.dto';
@@ -26,7 +24,7 @@ export class LinkController {
   @SetRequiredRequestUserID()
   @ApiOperation({ summary: '링크 목록 조회' })
   @ApiOkResponse({ type: ResponseType(GetLinksResultDTO) })
-  async getLinks(@Query() queryParam: GetLinksDTO) {
+  async getLinks(@Query() queryParam: GetLinksQueryDTO) {
     return this.linkService.getLinks(queryParam);
   }
 
@@ -53,8 +51,8 @@ export class LinkController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: '링크 접속' })
   @ApiOkResponse({ type: ResponseType(HitLinkResultDTO) })
-  async hitLink(@Req() request: Request, @Param() param: LinkParamDTO) {
-    return this.linkService.hitLink(request, param.id);
+  async hitLink(@Param() param: LinkParamDTO) {
+    return this.linkService.hitLink(param.id);
   }
 
   @Patch(':id')

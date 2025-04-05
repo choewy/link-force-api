@@ -14,7 +14,7 @@ import { TypeOrmConfigFactory } from './common/config/providers/typeorm-config.f
 import { SignModule } from './application/sign/sign.module';
 import { UserModule } from './application/user/user.module';
 import { LinkModule } from './application/link/link.module';
-import { LogModule } from './application/log/log.module';
+import { HistoryModule } from './application/history/history.module';
 import { StatisticsModule } from './application/statistics/statistics.module';
 
 @Module({
@@ -32,7 +32,7 @@ import { StatisticsModule } from './application/statistics/statistics.module';
     SignModule,
     UserModule,
     LinkModule,
-    LogModule,
+    HistoryModule,
     StatisticsModule,
   ],
   controllers: [AppController],

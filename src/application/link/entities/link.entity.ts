@@ -2,8 +2,9 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, JoinTab
 
 import { User } from 'src/application/user/entities/user.entity';
 import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
-import { Statistics } from 'src/application/statistics/entities/statistics.entity';
-import { HitLog } from 'src/application/log/entities/hit-log.entity';
+import { TotalStatistics } from 'src/application/statistics/entities/total-statistics.entity';
+import { DaliyStatistics } from 'src/application/statistics/entities/daliy-statistics.entity';
+import { HitHistory } from 'src/application/history/entities/hit-history.entity';
 
 import { LINK_ID_LENGTH } from '../persistents/constants';
 import { LinkStatus, LinkType } from '../persistents/enums';
@@ -32,13 +33,17 @@ export class Link {
   @JoinColumn()
   user: User | null;
 
-  @OneToOne(() => Statistics, (e) => e.link, { cascade: true })
+  @OneToOne(() => TotalStatistics, (e) => e.link, { cascade: true })
   @JoinTable()
-  statistics: Statistics;
+  totalStatistics: TotalStatistics;
 
-  @OneToMany(() => HitLog, (e) => e.link, { cascade: true })
+  @OneToMany(() => DaliyStatistics, (e) => e.link, { cascade: true })
   @JoinTable()
-  logs: HitLog[];
+  daliyStatistics: DaliyStatistics[];
+
+  @OneToMany(() => HitHistory, (e) => e.link, { cascade: true })
+  @JoinTable()
+  histories: HitHistory[];
 
   @CreateDateColumn({ comment: '생성일시', transformer: new DateTimeColumnTransformer() })
   readonly createdAt: Date;

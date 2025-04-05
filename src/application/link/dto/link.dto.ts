@@ -18,13 +18,13 @@ export class LinkDTO {
   expiredAt: Date | null;
 
   @ApiProperty({ type: Number })
-  hitCount: number;
+  totalHitCount: number;
 
   constructor(link: Link) {
     this.id = link.id;
     this.type = link.type;
     this.url = link.url;
     this.expiredAt = link.expiredAt;
-    this.hitCount = link.statistics?.hitCount ?? 0;
+    this.totalHitCount = link.totalStatistics?.hitCount ?? 0;
   }
 }

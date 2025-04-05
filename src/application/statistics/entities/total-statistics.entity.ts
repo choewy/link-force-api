@@ -3,15 +3,15 @@ import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, OneToOn
 import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
 import { Link } from 'src/application/link/entities/link.entity';
 
-@Entity({ name: 'statistics', comment: '링크 통계' })
-export class Statistics {
+@Entity({ name: 'total_statistics', comment: '링크 총 통계' })
+export class TotalStatistics {
   @PrimaryColumn({ type: 'varchar', comment: '링크 PK' })
   linkId: string;
 
   @Column({ type: 'bigint', unsigned: true, default: 0, comment: '요청수' })
   hitCount: number;
 
-  @OneToOne(() => Link, (e) => e.statistics, { onDelete: 'CASCADE' })
+  @OneToOne(() => Link, (e) => e.totalStatistics, { onDelete: 'CASCADE' })
   @JoinColumn()
   link: Link;
 

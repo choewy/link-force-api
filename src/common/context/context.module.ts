@@ -20,6 +20,7 @@ import { ContextService } from './context.service';
           req['id'] = requestId;
           res.set(ContextKey.RequestID, requestId);
 
+          clsService.set(ContextKey.Request, req);
           clsService.set(ContextKey.RequestID, requestId);
           clsService.set(ContextKey.RequestTimestamp, requestTimestamp);
         },

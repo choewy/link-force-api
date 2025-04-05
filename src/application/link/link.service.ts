@@ -1,21 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { Request } from 'express';
 import { DataSource, Repository } from 'typeorm';
 import { DateTime } from 'luxon';
 
-import { RequestHeader } from 'src/persistent/enums';
 import { ContextService } from 'src/common/context/context.service';
 
 import { UserSpecification } from '../user/entities/user-specification.entity';
-import { Statistics } from '../statistics/entities/statistics.entity';
-import { HitLog } from '../log/entities/hit-log.entity';
+import { TotalStatistics } from '../statistics/entities/total-statistics.entity';
+import { DaliyStatistics } from '../statistics/entities/daliy-statistics.entity';
+import { HitHistory } from '../history/entities/hit-history.entity';
 
 import { LinkStatus, LinkType } from './persistents/enums';
 import { Link } from './entities/link.entity';
 import { LinkDTO } from './dto/link.dto';
-import { GetLinksDTO } from './dto/get-links.dto';
+import { GetLinksQueryDTO } from './dto/get-links.dto';
 import { GetLinksResultDTO } from './dto/get-links-result.dto';
 import { CreateLinkDTO } from './dto/create-link.dto';
 import { UpdateLinkDTO } from './dto/update-link.dto';
@@ -27,19 +26,21 @@ export class LinkService {
     private readonly dataSource: DataSource,
     @InjectRepository(Link)
     private readonly linkRepository: Repository<Link>,
-    @InjectRepository(Statistics)
-    private readonly statisticsRepository: Repository<Statistics>,
-    @InjectRepository(HitLog)
-    private readonly hitLogRepository: Repository<HitLog>,
+    @InjectRepository(TotalStatistics)
+    private readonly totalStatisticsRepository: Repository<TotalStatistics>,
+    @InjectRepository(DaliyStatistics)
+    private readonly daliyStatisticsRepository: Repository<DaliyStatistics>,
+    @InjectRepository(HitHistory)
+    private readonly hitHistoryRepository: Repository<HitHistory>,
     @InjectRepository(UserSpecification)
     private readonly userSpecificationRepository: Repository<UserSpecification>,
     private readonly contextService: ContextService,
   ) {}
 
-  async getLinks(param: GetLinksDTO) {
+  async getLinks(param: GetLinksQueryDTO) {
     const [links, count] = await this.linkRepository
       .createQueryBuilder('link')
-      .innerJoinAndMapOne('link.statistics', 'link.statistics', 'statistics')
+      .innerJoinAndMapOne('link.totalStatistics', 'link.totalStatistics', 'totalStatistics')
       .where('1 = 1')
       .andWhere('link.userId = :userId', {
         userId: this.contextService.getRequestUserID() ?? '0',
@@ -53,7 +54,7 @@ export class LinkService {
 
   async getLink(id: string) {
     const link = await this.linkRepository.findOne({
-      relations: { statistics: true },
+      relations: { totalStatistics: true },
       where: { id, userId: this.contextService.getRequestUserID() },
     });
 
@@ -99,7 +100,7 @@ export class LinkService {
         retryCount++;
       }
 
-      await this.statisticsRepository.insert({ linkId: link.id });
+      await this.totalStatisticsRepository.insert({ linkId: link.id });
 
       if (userId) {
         await this.userSpecificationRepository
@@ -120,11 +121,7 @@ export class LinkService {
     return new LinkDTO(link);
   }
 
-  async hitLink(request: Request, id: string): Promise<HitLinkResultDTO> {
-    const ip =
-      (Array.isArray(request.headers[RequestHeader.XforwardedFor]) ? request.headers[RequestHeader.XforwardedFor].shift() : request.headers[RequestHeader.XforwardedFor]) ??
-      request.ip;
-
+  async hitLink(id: string): Promise<HitLinkResultDTO> {
     const link = await this.linkRepository.findOneBy({ id });
 
     if (!link || link.status === LinkStatus.Disabled) {
@@ -139,17 +136,31 @@ export class LinkService {
       }
     }
 
+    const date = DateTime.local().toJSDate();
+
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.startTransaction();
 
     try {
-      await this.hitLogRepository.insert({ ip, link });
-      await this.statisticsRepository
+      await this.hitHistoryRepository.insert({
+        ip: this.contextService.getRequestIP(),
+        userAgent: this.contextService.getRequestUserAgent(),
+        referer: this.contextService.getRequestReferer(),
+        link,
+      });
+
+      await this.totalStatisticsRepository
         .createQueryBuilder()
         .update({ hitCount: () => `hitCount + 1` })
         .where({ linkId: id })
         .execute();
 
+      await this.daliyStatisticsRepository.upsert({ linkId: id, date, hitCount: 0 }, { conflictPaths: ['linkId', 'date'], skipUpdateIfNoValuesChanged: true });
+      await this.daliyStatisticsRepository
+        .createQueryBuilder()
+        .update({ hitCount: () => `hitCount + 1` })
+        .where({ linkId: id, date })
+        .execute();
       await queryRunner.commitTransaction();
     } catch (e) {
       await queryRunner.rollbackTransaction();
@@ -183,8 +194,9 @@ export class LinkService {
 
     try {
       await this.linkRepository.softDelete({ id });
-      await this.hitLogRepository.softDelete({ linkId: id });
-      await this.statisticsRepository.softDelete({ linkId: id });
+      await this.hitHistoryRepository.softDelete({ linkId: id });
+      await this.totalStatisticsRepository.softDelete({ linkId: id });
+      await this.daliyStatisticsRepository.softDelete({ linkId: id });
 
       await queryRunner.commitTransaction();
     } catch (e) {

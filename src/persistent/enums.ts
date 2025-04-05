@@ -6,6 +6,8 @@ export enum RequestHeader {
   AccessToken = 'authorization',
   RefreshToken = 'x-refresh-token',
   XforwardedFor = 'x-forwarded-for',
+  Useragent = 'user-agent',
+  Referer = 'referer',
 }
 
 export enum ResponseHeader {

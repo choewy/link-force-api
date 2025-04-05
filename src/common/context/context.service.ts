@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 
 import { ClsService } from 'nestjs-cls';
+import { Request } from 'express';
 import { DateTime } from 'luxon';
 
 import { ContextKey } from './enums';
+import { RequestHeader } from 'src/persistent/enums';
 
 @Injectable()
 export class ContextService {
@@ -45,5 +47,27 @@ export class ContextService {
 
   getRequestPlatformAccountID(): string | undefined {
     return this.clsService.get(ContextKey.RequestPlatformAccountID) ?? undefined;
+  }
+
+  getRequest(): Request {
+    return this.clsService.get(ContextKey.Request);
+  }
+
+  getRequestIP(): string {
+    const request = this.getRequest();
+
+    if (Array.isArray(request.headers[RequestHeader.XforwardedFor])) {
+      return request.headers[RequestHeader.XforwardedFor].shift() ?? '';
+    }
+
+    return request.headers[RequestHeader.XforwardedFor] ?? request.ip ?? '';
+  }
+
+  getRequestUserAgent(): string {
+    return this.getRequest().headers[RequestHeader.Useragent] ?? '';
+  }
+
+  getRequestReferer(): string {
+    return this.getRequest().headers[RequestHeader.Referer] ?? '';
   }
 }

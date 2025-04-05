@@ -31,8 +31,6 @@ export class AuthGuard implements CanActivate {
 
     const { id, platformAccountId, isExpired } = this.authService.verifyAccessToken(accessToken);
 
-    console.log({ id, platformAccountId });
-
     this.contextService.setRequestUserID(id);
     this.contextService.setRequestPlatformAccountID(platformAccountId);
 
