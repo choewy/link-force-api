@@ -9,6 +9,7 @@ import { JwtConfigFactory } from './providers/jwt-config.factory';
 import { KakaoApiConfigFactory } from './providers/kakao-api-config.factory';
 import { NaverApiConfigFactory } from './providers/naver-api-config.factory';
 import { GoogleApiConfigFactory } from './providers/google-api-config.factory';
+import { KakaoPayApiConfigFactory } from './providers/kakao-pay-api-config.factory';
 
 const ConfigFactoryProviders = [
   AppConfigFactory,
@@ -19,6 +20,7 @@ const ConfigFactoryProviders = [
   KakaoApiConfigFactory,
   NaverApiConfigFactory,
   GoogleApiConfigFactory,
+  KakaoPayApiConfigFactory,
 ];
 
 @Global()

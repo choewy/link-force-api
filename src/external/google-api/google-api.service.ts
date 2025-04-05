@@ -22,7 +22,7 @@ export class GoogleApiService {
     const params = qs.stringify({
       response_type: 'code',
       scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'].join(' '),
-      client_id: this.googleApiConfigFactory.getLoginClientID(),
+      client_id: this.googleApiConfigFactory.getClientID(),
       redirect_uri: this.googleApiConfigFactory.getLoginRedirectURI(),
       state,
     } as GoogleLoginURLRequestParam);
@@ -34,8 +34,8 @@ export class GoogleApiService {
     const url = 'https://oauth2.googleapis.com/token';
     const params = {
       grant_type: 'authorization_code',
-      client_id: this.googleApiConfigFactory.getLoginClientID(),
-      client_secret: this.googleApiConfigFactory.getLoginClientSecret(),
+      client_id: this.googleApiConfigFactory.getClientID(),
+      client_secret: this.googleApiConfigFactory.getClientSecret(),
       redirect_uri: this.googleApiConfigFactory.getLoginRedirectURI(),
       code,
     } as GoogleTokenRequestParam;

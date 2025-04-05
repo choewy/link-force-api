@@ -21,7 +21,7 @@ export class KakaoApiService {
     const url = 'https://kauth.kakao.com/oauth/authorize';
     const params = qs.stringify({
       response_type: 'code',
-      client_id: this.kakaoApiConfigFactory.getLoginClientID(),
+      client_id: this.kakaoApiConfigFactory.getClientID(),
       redirect_uri: this.kakaoApiConfigFactory.getLoginRedirectURI(),
       state,
     } as KakaoLoginURLRequestParam);
@@ -33,8 +33,8 @@ export class KakaoApiService {
     const url = 'https://kauth.kakao.com/oauth/token';
     const body: KakaoTokenRequestParam = {
       grant_type: 'authorization_code',
-      client_id: this.kakaoApiConfigFactory.getLoginClientID(),
-      client_secret: this.kakaoApiConfigFactory.getLoginClientSecret(),
+      client_id: this.kakaoApiConfigFactory.getClientID(),
+      client_secret: this.kakaoApiConfigFactory.getClientSecret(),
       redirect_uri: this.kakaoApiConfigFactory.getLoginRedirectURI(),
       code,
     };
