@@ -1,17 +1,16 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { LinkType } from '../persistents/enums';
 import { Link } from '../entities/link.entity';
 
 export class HitLinkResultDTO {
   @ApiProperty({ type: String, example: '', description: '축약할 URL' })
   url: string;
 
-  @ApiProperty({ type: String, enum: LinkType, description: '링크 생성 속성' })
-  type: LinkType;
+  @ApiProperty({ type: Boolean, description: '광고 노출 여부' })
+  isAdvertisementVisible: boolean;
 
-  constructor(link: Link) {
+  constructor(link: Link, isAdvertisementVisible: boolean) {
     this.url = link.url;
-    this.type = link.type;
+    this.isAdvertisementVisible = isAdvertisementVisible;
   }
 }

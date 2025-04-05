@@ -11,7 +11,7 @@ import { TotalStatistics } from '../statistics/entities/total-statistics.entity'
 import { DaliyStatistics } from '../statistics/entities/daliy-statistics.entity';
 import { HitHistory } from '../history/entities/hit-history.entity';
 
-import { LinkStatus, LinkType } from './persistents/enums';
+import { LinkStatus } from './persistents/enums';
 import { Link } from './entities/link.entity';
 import { LinkDTO } from './dto/link.dto';
 import { GetLinksQueryDTO } from './dto/get-links.dto';
@@ -70,9 +70,8 @@ export class LinkService {
     const link = this.linkRepository.create({
       userId,
       url: body.url,
-      type: body.type,
       expiredAt:
-        body.type === LinkType.Free
+        userId === null
           ? DateTime.local()
               .plus({ days: userId === null ? 7 : 30 })
               .toJSDate()
@@ -122,7 +121,10 @@ export class LinkService {
   }
 
   async hitLink(id: string): Promise<HitLinkResultDTO> {
-    const link = await this.linkRepository.findOneBy({ id });
+    const link = await this.linkRepository.findOne({
+      relations: { user: true },
+      where: { id },
+    });
 
     if (!link || link.status === LinkStatus.Disabled) {
       throw new BadRequestException(`not found link by ${id}`);
@@ -155,7 +157,7 @@ export class LinkService {
         .where({ linkId: id })
         .execute();
 
-      await this.daliyStatisticsRepository.upsert({ linkId: id, date, hitCount: 0 }, { conflictPaths: ['linkId', 'date'], skipUpdateIfNoValuesChanged: true });
+      await this.daliyStatisticsRepository.upsert({ linkId: id, date }, { conflictPaths: ['linkId', 'date'], skipUpdateIfNoValuesChanged: true });
       await this.daliyStatisticsRepository
         .createQueryBuilder()
         .update({ hitCount: () => `hitCount + 1` })
@@ -169,7 +171,8 @@ export class LinkService {
       await queryRunner.release();
     }
 
-    return new HitLinkResultDTO(link);
+    // TODO 결제 여부에 따라 광고 노출 여부 추가
+    return new HitLinkResultDTO(link, link.user === null);
   }
 
   async updateLink(id: string, body: UpdateLinkDTO) {

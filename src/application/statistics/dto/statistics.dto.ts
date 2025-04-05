@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TotalStatistics } from '../entities/total-statistics.entity';
 import { DaliyStatistics } from '../entities/daliy-statistics.entity';
 
-export class StatisticsDTO {
+export class TotalStatisticsDTO {
   @ApiProperty({ description: '링크 ID' })
   linkId: string;
 
@@ -12,14 +12,11 @@ export class StatisticsDTO {
 
   constructor(totalStatistics: TotalStatistics) {
     this.linkId = totalStatistics.linkId;
-    this.hitCount = totalStatistics.hitCount;
+    this.hitCount = Number(totalStatistics.hitCount);
   }
 }
 
 export class DaliyStatisticsDTO {
-  @ApiProperty({ description: '링크 ID' })
-  linkId: string;
-
   @ApiProperty({ description: '일자' })
   date: Date;
 
@@ -27,8 +24,7 @@ export class DaliyStatisticsDTO {
   hitCount: number;
 
   constructor(daliyStatistics: DaliyStatistics) {
-    this.linkId = daliyStatistics.linkId;
     this.date = daliyStatistics.date;
-    this.hitCount = daliyStatistics.hitCount;
+    this.hitCount = Number(daliyStatistics.hitCount);
   }
 }

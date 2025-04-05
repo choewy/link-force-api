@@ -2,14 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { Link } from 'src/application/link/entities/link.entity';
 
-import { LinkType } from '../persistents/enums';
-
 export class LinkDTO {
   @ApiProperty({ type: String })
   id: string;
-
-  @ApiProperty({ type: String, enum: LinkType })
-  type: LinkType;
 
   @ApiProperty({ type: String })
   url: string;
@@ -22,9 +17,8 @@ export class LinkDTO {
 
   constructor(link: Link) {
     this.id = link.id;
-    this.type = link.type;
     this.url = link.url;
     this.expiredAt = link.expiredAt;
-    this.totalHitCount = link.totalStatistics?.hitCount ?? 0;
+    this.totalHitCount = Number(link.totalStatistics?.hitCount ?? 0);
   }
 }

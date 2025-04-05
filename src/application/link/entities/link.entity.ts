@@ -7,15 +7,12 @@ import { DaliyStatistics } from 'src/application/statistics/entities/daliy-stati
 import { HitHistory } from 'src/application/history/entities/hit-history.entity';
 
 import { LINK_ID_LENGTH } from '../persistents/constants';
-import { LinkStatus, LinkType } from '../persistents/enums';
+import { LinkStatus } from '../persistents/enums';
 
 @Entity({ name: 'link', comment: '링크' })
 export class Link {
   @PrimaryColumn({ type: 'varchar', comment: '링크 PK' })
   id: string;
-
-  @Column({ type: 'varchar', length: 10, comment: '구분' })
-  type: LinkType;
 
   @Column({ type: 'varchar', length: 2048, comment: 'URL' })
   url: string;
