@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AppConfigFactory } from './providers/app-config.factory';
 import { ServerConfigFactory } from './providers/server-config.factory';
+import { LoggerConfigFactory } from './providers/logger-config.factory';
 import { TypeOrmConfigFactory } from './providers/typeorm-config.factory';
 import { RedisConfigFactory } from './providers/redis-config.factory';
 import { JwtConfigFactory } from './providers/jwt-config.factory';
@@ -14,6 +15,7 @@ import { KakaoPayApiConfigFactory } from './providers/kakao-pay-api-config.facto
 const ConfigFactoryProviders = [
   AppConfigFactory,
   ServerConfigFactory,
+  LoggerConfigFactory,
   TypeOrmConfigFactory,
   RedisConfigFactory,
   JwtConfigFactory,

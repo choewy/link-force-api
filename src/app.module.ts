@@ -9,6 +9,7 @@ import { AppService } from './app.service';
 
 import { ContextModule } from './common/context/context.module';
 import { ConfigFactoryModule } from './common/config/config-factory.module';
+import { LoggerConfigFactory } from './common/config/providers/logger-config.factory';
 import { TypeOrmConfigFactory } from './common/config/providers/typeorm-config.factory';
 
 import { SignModule } from './application/sign/sign.module';
@@ -23,8 +24,13 @@ import { PaymentModule } from './application/payment/payment.module';
   imports: [
     ContextModule,
     ConfigFactoryModule,
-    LoggerModule.forRoot(),
     ScheduleModule.forRoot(),
+    LoggerModule.forRootAsync({
+      inject: [LoggerConfigFactory],
+      useFactory(loggerConfigFactory: LoggerConfigFactory) {
+        return loggerConfigFactory.getPinoLoggerConfig();
+      },
+    }),
     TypeOrmModule.forRootAsync({
       inject: [TypeOrmConfigFactory],
       useFactory(typeOrmConfigFactory: TypeOrmConfigFactory) {

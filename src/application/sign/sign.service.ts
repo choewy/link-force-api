@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { DataSource, Repository } from 'typeorm';
@@ -56,9 +56,6 @@ export class SignService {
 
       case SignPlatform.Google:
         return new GetPlatformLoginPageUrlResultDTO(this.googleApiService.getLoginPageURL(state));
-
-      default:
-        throw new BadRequestException();
     }
   }
 
@@ -72,9 +69,6 @@ export class SignService {
 
       case SignPlatform.Google:
         return (await this.googleApiService.getToken(code)).access_token;
-
-      default:
-        throw new BadRequestException();
     }
   }
 
@@ -88,9 +82,6 @@ export class SignService {
 
       case SignPlatform.Google:
         return PlatformProfile.fromGoogleProfile(await this.googleApiService.getProfile(accessToken));
-
-      default:
-        throw new BadRequestException();
     }
   }
 

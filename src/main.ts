@@ -18,16 +18,18 @@ async function bootstrap() {
   const appConfig = app.get(AppConfigFactory);
   const serverConfig = app.get(ServerConfigFactory);
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle(appConfig.getAppName())
-    .setVersion(appConfig.getAppVersion())
-    .addBearerAuth({ name: RequestHeader.AccessToken, type: 'http', in: 'header' }, RequestHeader.AccessToken)
-    .addApiKey({ name: RequestHeader.RefreshToken, type: 'apiKey', in: 'header' }, RequestHeader.RefreshToken)
-    .build();
+  if (!appConfig.getNodeEnv().isProduction()) {
+    const swaggerConfig = new DocumentBuilder()
+      .setTitle(appConfig.getAppName())
+      .setVersion(appConfig.getAppVersion())
+      .addBearerAuth({ name: RequestHeader.AccessToken, type: 'http', in: 'header' }, RequestHeader.AccessToken)
+      .addApiKey({ name: RequestHeader.RefreshToken, type: 'apiKey', in: 'header' }, RequestHeader.RefreshToken)
+      .build();
 
-  const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
 
-  SwaggerModule.setup('api-docs', app, swaggerDocument);
+    SwaggerModule.setup('api-docs', app, swaggerDocument);
+  }
 
   app.useLogger(app.get(Logger));
   app.enableShutdownHooks();
