@@ -9,6 +9,7 @@ import { PlatformAccount } from 'src/application/user/entities/platform-account.
 import { KakaoApiService } from 'src/external/kakao-api/kakao-api.service';
 import { NaverApiService } from 'src/external/naver-api/naver-api.service';
 import { GoogleApiService } from 'src/external/google-api/google-api.service';
+import { ContextService } from 'src/common/context/context.service';
 
 import { SignPlatform } from '../user/persistents/enums';
 import { User } from '../user/entities/user.entity';
@@ -19,10 +20,12 @@ import { GetSignTokenDTO } from './dto/get-sign-token.dto';
 import { GetSignTokenResultDTO } from './dto/get-sign-token-result.dto';
 import { GetPlatformLoginPageUrlResultDTO } from './dto/get-platform-login-page-url-result.dto';
 import { PlatformLoginCallbackQueryDTO } from './dto/platform-login-callback-query.dto';
+import { RefreshSignTokenBodyDTO, RefreshSignTokenResultDTO } from './dto/refresh-sign-token.dto';
 
 @Injectable()
 export class SignService {
   constructor(
+    private readonly contextService: ContextService,
     private readonly dataSource: DataSource,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
@@ -44,6 +47,28 @@ export class SignService {
     }
 
     return new GetSignTokenResultDTO(tokens.accessToken, tokens.refreshToken);
+  }
+
+  refreshSignToken(refreshTokenDTO: RefreshSignTokenBodyDTO): RefreshSignTokenResultDTO {
+    const request = this.contextService.getRequest();
+    const accessToken = (request.headers.authorization ?? '').replace('Bearer ', '');
+
+    const { id, platformAccountId } = this.authService.verifyAccessToken(accessToken, true);
+
+    if (!id || !platformAccountId) {
+      throw new UnauthorizedException();
+    }
+
+    const refreshToken = refreshTokenDTO.refreshToken;
+
+    if (!this.authService.verifyRefreshToken(refreshToken, accessToken)) {
+      throw new UnauthorizedException();
+    }
+
+    const newAccessToken = this.authService.issueAccessToken(id, platformAccountId);
+    const newRefreshToken = this.authService.issueRefreshToken(newAccessToken);
+
+    return new RefreshSignTokenResultDTO(newAccessToken, newRefreshToken);
   }
 
   public getPlatformLoginPageUrl(platform: SignPlatform, state: string): GetPlatformLoginPageUrlResultDTO {

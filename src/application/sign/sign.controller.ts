@@ -11,6 +11,7 @@ import { GetPlatformLoginPageUrlResultDTO } from './dto/get-platform-login-page-
 import { PlatformParamDTO } from './dto/platform-param.dto';
 import { PlatformLoginCallbackQueryDTO } from './dto/platform-login-callback-query.dto';
 import { PlatformLoginCallbackResultDTO } from './dto/platform-login-callback-result.dto';
+import { RefreshSignTokenBodyDTO, RefreshSignTokenResultDTO } from './dto/refresh-sign-token.dto';
 
 @ApiTags('인증')
 @Controller('sign')
@@ -22,6 +23,13 @@ export class SignController {
   @ApiCreatedResponse({ type: GetSignTokenResultDTO })
   async getSignToken(@Body() getSignTokenDTO: GetSignTokenDTO) {
     return this.signService.getSignToken(getSignTokenDTO);
+  }
+
+  @Post('token/refresh')
+  @ApiOperation({ summary: '인증 토큰 갱신' })
+  @ApiCreatedResponse({ type: RefreshSignTokenResultDTO })
+  refreshSignToken(@Body() refreshSignTokenDTO: RefreshSignTokenBodyDTO) {
+    return this.signService.refreshSignToken(refreshSignTokenDTO);
   }
 
   @Post(':platform/login')
