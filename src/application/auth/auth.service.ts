@@ -6,9 +6,8 @@ import { Repository } from 'typeorm';
 
 import { JwtConfigFactory } from 'src/common/config/providers/jwt-config.factory';
 
-import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './persistents/types';
-
 import { AuthToken } from './entities/auth-token.entity';
+import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './persistents/types';
 
 @Injectable()
 export class AuthService {
