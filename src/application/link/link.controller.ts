@@ -10,7 +10,7 @@ import { LinkParamDTO } from './dto/link-param.dto';
 import { LinkDTO } from './dto/link.dto';
 import { GetLinksQueryDTO } from './dto/get-links.dto';
 import { GetLinksResultDTO } from './dto/get-links-result.dto';
-import { CreateLinkDTO } from './dto/create-link.dto';
+import { CreateLinkDTO, CreateLinkResultDTO } from './dto/create-link.dto';
 import { UpdateLinkDTO } from './dto/update-link.dto';
 import { HitLinkResultDTO } from './dto/hit-link-result.dto';
 
@@ -42,7 +42,7 @@ export class LinkController {
   @SetOptionalRequestUserID()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: '링크 생성' })
-  @ApiCreatedResponse({ type: ResponseType(LinkDTO) })
+  @ApiCreatedResponse({ type: ResponseType(CreateLinkResultDTO) })
   async createLink(@Body() body: CreateLinkDTO) {
     return this.linkService.createLink(body);
   }

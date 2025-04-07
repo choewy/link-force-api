@@ -46,16 +46,16 @@ export class SignService {
     return new GetSignTokenResultDTO(tokens.accessToken, tokens.refreshToken);
   }
 
-  public getPlatformLoginPageUrl(platform: SignPlatform, state: string): GetPlatformLoginPageUrlResultDTO {
+  public getPlatformLoginPageUrl(platform: SignPlatform, callbackUrl: string): GetPlatformLoginPageUrlResultDTO {
     switch (platform) {
       case SignPlatform.Kakao:
-        return new GetPlatformLoginPageUrlResultDTO(this.kakaoApiService.getLoginPageURL(state));
+        return new GetPlatformLoginPageUrlResultDTO(this.kakaoApiService.getLoginPageURL(callbackUrl));
 
       case SignPlatform.Naver:
-        return new GetPlatformLoginPageUrlResultDTO(this.naverApiService.getLoginPageURL(state));
+        return new GetPlatformLoginPageUrlResultDTO(this.naverApiService.getLoginPageURL(callbackUrl));
 
       case SignPlatform.Google:
-        return new GetPlatformLoginPageUrlResultDTO(this.googleApiService.getLoginPageURL(state));
+        return new GetPlatformLoginPageUrlResultDTO(this.googleApiService.getLoginPageURL(callbackUrl));
     }
   }
 

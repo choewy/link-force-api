@@ -28,7 +28,7 @@ export class SignController {
   @ApiOperation({ summary: '소셜 로그인 페이지 URL' })
   @ApiOkResponse({ type: GetPlatformLoginPageUrlResultDTO })
   getPlatformLoginPageUrl(@Param() param: PlatformParamDTO, @Body() body: GetPlatformLoginPageUrlDTO) {
-    return this.signService.getPlatformLoginPageUrl(param.platform, body.state);
+    return this.signService.getPlatformLoginPageUrl(param.platform, body.callbackUrl);
   }
 
   @Get(':platform/result')

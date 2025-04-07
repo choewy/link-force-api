@@ -16,7 +16,7 @@ import { Link } from './entities/link.entity';
 import { LinkDTO } from './dto/link.dto';
 import { GetLinksQueryDTO } from './dto/get-links.dto';
 import { GetLinksResultDTO } from './dto/get-links-result.dto';
-import { CreateLinkDTO } from './dto/create-link.dto';
+import { CreateLinkDTO, CreateLinkResultDTO } from './dto/create-link.dto';
 import { UpdateLinkDTO } from './dto/update-link.dto';
 import { HitLinkResultDTO } from './dto/hit-link-result.dto';
 
@@ -65,7 +65,7 @@ export class LinkService {
     return new LinkDTO(link);
   }
 
-  async createLink(body: CreateLinkDTO) {
+  async createLink(body: CreateLinkDTO): Promise<CreateLinkResultDTO> {
     const userId = this.contextService.getRequestUserID();
     const link = this.linkRepository.create({
       userId,
@@ -112,7 +112,7 @@ export class LinkService {
       await queryRunner.release();
     }
 
-    return new LinkDTO(link);
+    return new CreateLinkResultDTO(link);
   }
 
   async hitLink(id: string): Promise<HitLinkResultDTO> {

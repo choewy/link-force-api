@@ -30,10 +30,10 @@ export class AuthService {
   }
 
   public issueRefreshToken(accessToken: string) {
-    const signature = accessToken.split('.').pop();
+    const segment = accessToken.split('.').pop();
 
     return this.jwtService.sign(
-      { signature },
+      { segment },
       {
         secret: this.jwtConfigFactory.getRefreshTokenSecret(),
         expiresIn: '1d',
@@ -66,11 +66,15 @@ export class AuthService {
   }
 
   public verifyRefreshToken(refreshToken: string, accessToken: string): boolean {
-    const { signature } = this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
-      secret: this.jwtConfigFactory.getRefreshTokenSecret(),
-    });
+    try {
+      const { segment } = this.jwtService.verify<RefreshTokenPayload>(refreshToken, {
+        secret: this.jwtConfigFactory.getRefreshTokenSecret(),
+      });
 
-    return signature === accessToken.split('.').pop();
+      return segment === accessToken.split('.').pop();
+    } catch {
+      return false;
+    }
   }
 
   async setToken(accessToken: string, refreshToken: string): Promise<string> {
