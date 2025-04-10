@@ -70,7 +70,7 @@ export class LinkService {
     const link = this.linkRepository.create({
       userId,
       url: body.url,
-      expiredAt: userId === null ? DateTime.local().plus({ days: 30 }).toJSDate() : null,
+      expiredAt: userId ? null : DateTime.local().plus({ months: 1 }).toJSDate(),
     });
 
     const queryRunner = this.dataSource.createQueryRunner();
