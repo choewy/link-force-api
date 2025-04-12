@@ -1,11 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { SignPlatform } from '../persistents/enums';
-import { PlatformAccount } from '../entities/platform-account.entity';
+import { OAuthPlatform } from 'src/application/oauth/persistents/enums';
+import { OAuth } from 'src/application/oauth/entities/oauth.entity';
 
 export class UserPlatformAccountDTO {
-  @ApiProperty({ type: String, enum: SignPlatform })
-  platform: SignPlatform;
+  @ApiProperty({ type: String, enum: OAuthPlatform })
+  platform: OAuthPlatform;
 
   @ApiProperty({ type: String })
   accountId: string;
@@ -28,14 +28,14 @@ export class UserPlatformAccountDTO {
   @ApiProperty({ type: Date })
   updatedAt: Date;
 
-  constructor(platformAccount: PlatformAccount) {
-    this.platform = platformAccount.platform;
-    this.accountId = platformAccount.accountId;
-    this.name = platformAccount.name;
-    this.nickname = platformAccount.nickname;
-    this.email = platformAccount.email;
-    this.profileImage = platformAccount.profileImage;
-    this.createdAt = platformAccount.createdAt;
-    this.updatedAt = platformAccount.updatedAt;
+  constructor(oauth: OAuth) {
+    this.platform = oauth.platform;
+    this.accountId = oauth.accountId;
+    this.name = oauth.name;
+    this.nickname = oauth.nickname;
+    this.email = oauth.email;
+    this.profileImage = oauth.profileImage;
+    this.createdAt = oauth.createdAt;
+    this.updatedAt = oauth.updatedAt;
   }
 }

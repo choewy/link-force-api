@@ -6,6 +6,7 @@ export type RefreshTokenPayload = JwtPayload & { segment: string };
 
 export type VerifyAccessTokenResult = {
   id: string | null;
-  platformAccountId: string | null;
+  platform: string | null;
+  accountId: string | null;
   isExpired: boolean;
 };

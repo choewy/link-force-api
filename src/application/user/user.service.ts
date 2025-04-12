@@ -5,9 +5,10 @@ import { Repository } from 'typeorm';
 
 import { ContextService } from 'src/common/context/context.service';
 
+import { OAuth } from '../oauth/entities/oauth.entity';
+
 import { User } from './entities/user.entity';
 import { UserProfileDTO } from './dto/user-profile.dto';
-import { PlatformAccount } from './entities/platform-account.entity';
 import { UserListDTO } from './dto/user-list.dto';
 import { GetUserListDTO } from './dto/get-user-list.dto';
 
@@ -17,38 +18,39 @@ export class UserService {
     private readonly contextService: ContextService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-    @InjectRepository(PlatformAccount)
-    private readonly platformAccountRepository: Repository<PlatformAccount>,
+    @InjectRepository(OAuth)
+    private readonly oauthRepository: Repository<OAuth>,
   ) {}
 
   async getMyProfile() {
     const userId = this.contextService.getRequestUserID();
-    const platformAccountId = this.contextService.getRequestPlatformAccountID();
+    const oauthKey = this.contextService.getRequestOAuthKey();
 
-    if (!userId || !platformAccountId) {
+    if (!userId || !oauthKey.platform || !oauthKey.accountId) {
       throw new UnauthorizedException();
     }
 
-    const platformAccount = await this.platformAccountRepository
-      .createQueryBuilder('platformAccount')
-      .innerJoinAndMapOne('platformAccount.user', 'platformAccount.user', 'user')
+    const oauth = await this.oauthRepository
+      .createQueryBuilder('oauth')
+      .innerJoinAndMapOne('oauth.user', 'oauth.user', 'user')
       .where('1 = 1')
-      .andWhere('platformAccount.id = :platformAccountId', { platformAccountId })
+      .andWhere('oauth.platform = :platform', { platform: oauthKey.platform })
+      .andWhere('oauth.accountId = :accountId', { accountId: oauthKey.accountId })
       .andWhere('user.id = :userId', { userId })
       .take(1)
       .getOne();
 
-    if (!platformAccount) {
+    if (!oauth) {
       throw new UnauthorizedException();
     }
 
-    return new UserProfileDTO(platformAccount);
+    return new UserProfileDTO(oauth);
   }
 
   async getUserList(queryParam: GetUserListDTO): Promise<UserListDTO> {
     const [users, count] = await this.userRepository
       .createQueryBuilder('user')
-      .innerJoinAndMapOne('user.platformAccount', 'user.platformAccount', 'platformAccount')
+      .innerJoinAndMapMany('user.oauths', 'user.oauths', 'oauths')
       .orderBy('user.createdAt', 'DESC')
       .skip(queryParam.skip)
       .take(queryParam.take)

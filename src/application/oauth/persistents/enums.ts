@@ -1,4 +1,4 @@
-export enum SignPlatform {
+export enum OAuthPlatform {
   Kakao = 'kakao',
   Naver = 'naver',
   Google = 'google',

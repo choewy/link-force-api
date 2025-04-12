@@ -41,12 +41,19 @@ export class ContextService {
     return this.clsService.get(ContextKey.RequestUserID) ?? undefined;
   }
 
-  setRequestPlatformAccountID(id: string | null) {
-    this.clsService.set(ContextKey.RequestPlatformAccountID, id);
+  setRequestOAuthKey(platform: string | null, accountId: string | null) {
+    this.clsService.set(ContextKey.RequestOAuthPlatform, platform);
+    this.clsService.set(ContextKey.RequestOAuthAccountID, accountId);
   }
 
-  getRequestPlatformAccountID(): string | undefined {
-    return this.clsService.get(ContextKey.RequestPlatformAccountID) ?? undefined;
+  getRequestOAuthKey(): {
+    platform: string | null;
+    accountId: string | null;
+  } {
+    return {
+      platform: this.clsService.get(ContextKey.RequestOAuthPlatform),
+      accountId: this.clsService.get(ContextKey.RequestOAuthAccountID),
+    };
   }
 
   getRequest(): Request {

@@ -41,8 +41,8 @@ export type KakaoProfileResponse = {
   kakao_account: {
     profile_nickname_needs_agreement: boolean;
     profile_image_needs_agreement: boolean;
-    name?: string;
-    email?: string;
+    name: string;
+    email: string;
     profile: {
       nickname: string;
       thumbnail_image_url: string;

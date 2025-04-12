@@ -12,7 +12,8 @@ import { ConfigFactoryModule } from './common/config/config-factory.module';
 import { LoggerConfigFactory } from './common/config/providers/logger-config.factory';
 import { TypeOrmConfigFactory } from './common/config/providers/typeorm-config.factory';
 
-import { SignModule } from './application/sign/sign.module';
+import { AuthModule } from './application/auth/auth.module';
+import { OAuthModule } from './application/oauth/oauth.module';
 import { UserModule } from './application/user/user.module';
 import { LinkModule } from './application/link/link.module';
 import { HistoryModule } from './application/history/history.module';
@@ -37,7 +38,8 @@ import { PaymentModule } from './application/payment/payment.module';
         return typeOrmConfigFactory.getTypeOrmModuleOptions();
       },
     }),
-    SignModule,
+    AuthModule,
+    OAuthModule,
     UserModule,
     LinkModule,
     HistoryModule,

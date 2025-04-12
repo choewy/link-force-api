@@ -1,21 +1,17 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, Unique, UpdateDateColumn } from 'typeorm';
 
 import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
+import { User } from 'src/application/user/entities/user.entity';
 
-import { SignPlatform } from '../persistents/enums';
+import { OAuthPlatform } from '../persistents/enums';
 
-import { User } from './user.entity';
+@Entity({ name: 'oauth', comment: 'OAuth' })
+@Unique('oauth_unique_key', ['platform', 'accountId'])
+export class OAuth {
+  @PrimaryColumn({ type: 'varchar', length: 20, comment: '플랫폼' })
+  platform: OAuthPlatform;
 
-@Entity({ name: 'platform_account', comment: '플랫폼 계정' })
-@Unique('platform_account_unique_key', ['platform', 'accountId'])
-export class PlatformAccount {
-  @PrimaryGeneratedColumn('uuid')
-  readonly id: string;
-
-  @Column({ type: 'varchar', length: 20, comment: '플랫폼' })
-  platform: SignPlatform;
-
-  @Column({ type: 'varchar', length: 100, comment: '플랫폼 ID' })
+  @PrimaryColumn({ type: 'varchar', length: 100, comment: '플랫폼 ID' })
   accountId: string;
 
   @Column({ type: 'varchar', length: 50, default: null, comment: '닉네임' })
@@ -30,7 +26,10 @@ export class PlatformAccount {
   @Column({ type: 'varchar', length: 1024, default: null, comment: '프로필 이미지 URL' })
   profileImage: string | null;
 
-  @OneToOne(() => User, (e) => e.platformAccount, { onDelete: 'CASCADE' })
+  @Column({ type: 'varchar', comment: '사용자 PK' })
+  userId: string;
+
+  @ManyToOne(() => User, (e) => e.oauths, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
 

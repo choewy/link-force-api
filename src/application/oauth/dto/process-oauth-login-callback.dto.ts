@@ -1,11 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { OAuthPlatform } from '../persistents/enums';
+import { IsEnum, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-import { KakaoLoginCallbackParam } from 'src/external/kakao-api/types';
-import { NaverLoginCallbackParam } from 'src/external/naver-api/types';
+export class ProcessOAuthLoginCallbackParamDTO {
+  @ApiProperty({ type: String, enum: OAuthPlatform })
+  @IsEnum(OAuthPlatform)
+  @IsNotEmpty()
+  platform: OAuthPlatform;
+}
 
-export class PlatformLoginCallbackQueryDTO implements KakaoLoginCallbackParam, NaverLoginCallbackParam {
+export class ProcessOAuthLoginCallbackQueryDTO {
   @ApiProperty({ type: String })
   @IsString()
   @IsNotEmpty()
@@ -40,4 +45,12 @@ export class PlatformLoginCallbackQueryDTO implements KakaoLoginCallbackParam, N
   @IsString()
   @IsOptional()
   prompt?: string;
+}
+
+export class ProcessOAuthLoginCallbackResultQueryDTO {
+  @ApiProperty({ type: String, enum: OAuthPlatform })
+  platform: OAuthPlatform;
+
+  @ApiProperty({ type: String })
+  authKey: string;
 }

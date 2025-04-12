@@ -1,11 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { SignPlatform } from '../persistents/enums';
-import { PlatformAccount } from '../entities/platform-account.entity';
+import { OAuthPlatform } from 'src/application/oauth/persistents/enums';
+import { OAuth } from 'src/application/oauth/entities/oauth.entity';
 
 export class UserProfileDTO {
-  @ApiProperty({ type: String, enum: SignPlatform })
-  platform: SignPlatform;
+  @ApiProperty({ type: String, enum: OAuthPlatform })
+  platform: OAuthPlatform;
 
   @ApiPropertyOptional({ type: String })
   name: string | null;
@@ -19,11 +19,11 @@ export class UserProfileDTO {
   @ApiPropertyOptional({ type: String })
   profileImage: string | null;
 
-  constructor(platformAccount: PlatformAccount) {
-    this.platform = platformAccount.platform;
-    this.name = platformAccount.name;
-    this.nickname = platformAccount.nickname;
-    this.email = platformAccount.email;
-    this.profileImage = platformAccount.profileImage;
+  constructor(oauth: OAuth) {
+    this.platform = oauth.platform;
+    this.name = oauth.name;
+    this.nickname = oauth.nickname;
+    this.email = oauth.email;
+    this.profileImage = oauth.profileImage;
   }
 }

@@ -1,21 +1,24 @@
-import { CreateDateColumn, DeleteDateColumn, Entity, JoinTable, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinTable, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 
 import { Link } from 'src/application/link/entities/link.entity';
 import { DateTimeColumnTransformer } from 'src/common/transformers/datetime-column.transformer';
 import { Membership } from 'src/application/membership/entities/membership.entity';
-
-import { PlatformAccount } from './platform-account.entity';
-import { UserSpecification } from './user-specification.entity';
 import { Payment } from 'src/application/payment/entities/payment.entity';
+import { OAuth } from 'src/application/oauth/entities/oauth.entity';
+
+import { UserSpecification } from './user-specification.entity';
 
 @Entity({ name: 'user', comment: '사용자' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   readonly id: string;
 
-  @OneToOne(() => PlatformAccount, (e) => e.user, { cascade: true })
+  @Column({ type: 'varchar', length: 320, comment: '이메일', unique: true })
+  email: string;
+
+  @OneToMany(() => OAuth, (e) => e.user, { cascade: true })
   @JoinTable()
-  platformAccount: PlatformAccount;
+  oauths: OAuth[];
 
   @OneToOne(() => Membership, (e) => e.user, { cascade: true, nullable: true })
   @JoinTable()

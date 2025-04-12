@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService, TokenExpiredError } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -8,6 +8,7 @@ import { JwtConfigFactory } from 'src/common/config/providers/jwt-config.factory
 
 import { AuthToken } from './entities/auth-token.entity';
 import { AccessTokenPayload, RefreshTokenPayload, VerifyAccessTokenResult } from './persistents/types';
+import { GetAuthTokenResultDTO } from './dto/get-auth-token.dto';
 
 @Injectable()
 export class AuthService {
@@ -18,9 +19,9 @@ export class AuthService {
     private readonly authTokenRepository: Repository<AuthToken>,
   ) {}
 
-  public issueAccessToken(id: string, platformAccountId: string) {
+  public issueAccessToken(id: string, platform: string, accountId: string) {
     return this.jwtService.sign(
-      { id, platformAccountId },
+      { id, platform, accountId },
       {
         secret: this.jwtConfigFactory.getAccessTokenSecret(),
         expiresIn: '1h',
@@ -43,18 +44,20 @@ export class AuthService {
   public verifyAccessToken(accessToken: string, ignoreExpiration = false): VerifyAccessTokenResult {
     const verifyResult: VerifyAccessTokenResult = {
       id: null,
-      platformAccountId: null,
+      platform: null,
+      accountId: null,
       isExpired: ignoreExpiration,
     };
 
     try {
-      const { id, platformAccountId } = this.jwtService.verify<AccessTokenPayload>(accessToken, {
+      const { id, platform, accountId } = this.jwtService.verify<AccessTokenPayload>(accessToken, {
         secret: this.jwtConfigFactory.getAccessTokenSecret(),
         ignoreExpiration,
       });
 
       verifyResult.id = id;
-      verifyResult.platformAccountId = platformAccountId;
+      verifyResult.platform = platform;
+      verifyResult.accountId = accountId;
     } catch (e) {
       if (e.name === TokenExpiredError.name) {
         return this.verifyAccessToken(accessToken, true);
@@ -76,7 +79,7 @@ export class AuthService {
     }
   }
 
-  async setToken(accessToken: string, refreshToken: string): Promise<string> {
+  async setAuthToken(accessToken: string, refreshToken: string): Promise<string> {
     const authToken = this.authTokenRepository.create({ accessToken, refreshToken });
 
     await this.authTokenRepository.insert(authToken);
@@ -84,11 +87,15 @@ export class AuthService {
     return authToken.id;
   }
 
-  async getToken(authKey: string): Promise<AuthToken | null> {
+  async getAuthToken(authKey: string): Promise<GetAuthTokenResultDTO> {
     const authToken = await this.authTokenRepository.findOneBy({ id: authKey });
+
+    if (!authToken) {
+      throw new BadRequestException('');
+    }
 
     await this.authTokenRepository.delete({ id: authKey });
 
-    return authToken;
+    return new GetAuthTokenResultDTO(authToken);
   }
 }
