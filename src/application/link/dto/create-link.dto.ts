@@ -1,14 +1,15 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-import { IsNotEmpty, IsUrl } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 import { IsNotHostUrl } from 'src/common/validators/is-not-host-url';
 import { Link } from '../entities/link.entity';
+import { IsUrlWithPort } from 'src/common/validators/is-url-with-port';
 
 export class CreateLinkDTO {
   @ApiProperty({ type: String, example: '', description: '축약할 URL' })
   @IsNotHostUrl()
-  @IsUrl()
+  @IsUrlWithPort()
   @IsNotEmpty()
   url: string;
 }

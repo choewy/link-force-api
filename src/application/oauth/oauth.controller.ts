@@ -1,9 +1,10 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, Query, Res } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { OAuthService } from './oauth.service';
 import { GetOAuthLoginUrlQueryDTO, GetOAuthLoginUrlParamDTO, GetOAuthLoginUrlResultDTO } from './dto/get-oauth-login-url.dto';
 import { ProcessOAuthLoginCallbackParamDTO, ProcessOAuthLoginCallbackQueryDTO, ProcessOAuthLoginCallbackResultQueryDTO } from './dto/process-oauth-login-callback.dto';
+import { Response } from 'express';
 
 @ApiTags('OAuth')
 @Controller('oauth')
@@ -20,7 +21,7 @@ export class OAuthController {
   @Get(':platform/callback')
   @ApiOperation({ summary: '소셜 로그인 인증 콜백' })
   @ApiOkResponse({ type: ProcessOAuthLoginCallbackResultQueryDTO })
-  processLoginCallback(@Param() param: ProcessOAuthLoginCallbackParamDTO, @Query() query: ProcessOAuthLoginCallbackQueryDTO) {
-    return this.oauthService.processLoginCallback(param.platform, query);
+  async processLoginCallback(@Res() res: Response, @Param() param: ProcessOAuthLoginCallbackParamDTO, @Query() query: ProcessOAuthLoginCallbackQueryDTO) {
+    res.redirect(HttpStatus.PERMANENT_REDIRECT, await this.oauthService.processLoginCallback(param.platform, query));
   }
 }

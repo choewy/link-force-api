@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-import { IsEnum, IsNotEmpty, IsUrl } from 'class-validator';
+import { IsEnum, IsNotEmpty } from 'class-validator';
 
 import { OAuthPlatform } from '../persistents/enums';
+import { IsUrlWithPort } from 'src/common/validators/is-url-with-port';
 
 export class GetOAuthLoginUrlParamDTO {
   @ApiProperty({ type: String, enum: OAuthPlatform })
@@ -13,7 +14,7 @@ export class GetOAuthLoginUrlParamDTO {
 
 export class GetOAuthLoginUrlQueryDTO {
   @ApiProperty({ type: String, example: 'http://127.0.0.1:3000' })
-  @IsUrl()
+  @IsUrlWithPort()
   @IsNotEmpty()
   callbackUrl: string;
 }

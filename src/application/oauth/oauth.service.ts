@@ -81,16 +81,7 @@ export class OAuthService {
   }
 
   getLoginUrl(platform: OAuthPlatform, query: GetOAuthLoginUrlQueryDTO): GetOAuthLoginUrlResultDTO {
-    switch (platform) {
-      case OAuthPlatform.Kakao:
-        return new GetOAuthLoginUrlResultDTO(this.kakaoApiService.getLoginPageURL(query.callbackUrl));
-
-      case OAuthPlatform.Naver:
-        return new GetOAuthLoginUrlResultDTO(this.naverApiService.getLoginPageURL(query.callbackUrl));
-
-      case OAuthPlatform.Google:
-        return new GetOAuthLoginUrlResultDTO(this.googleApiService.getLoginPageURL(query.callbackUrl));
-    }
+    return new GetOAuthLoginUrlResultDTO(this.getOAuthApiService(platform).getLoginPageURL(query.callbackUrl));
   }
 
   async processLoginCallback(platform: OAuthPlatform, query: ProcessOAuthLoginCallbackQueryDTO) {

@@ -1,8 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { AuthToken } from '../entities/auth-token.entity';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class GetAuthTokenBodyDTO {
   @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
   authKey: string;
 }
 
