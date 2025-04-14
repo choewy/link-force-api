@@ -16,4 +16,8 @@ export class KakaoApiConfigFactory {
   public getLoginRedirectURI(): string {
     return this.configService.getOrThrow('KAKAO_LOGIN_REDIRECT_URI');
   }
+
+  public getConnectRedirectURI(): string {
+    return this.configService.getOrThrow('KAKAO_CONNECT_REDIRECT_URI');
+  }
 }

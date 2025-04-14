@@ -5,21 +5,21 @@ import { IsEnum, IsNotEmpty } from 'class-validator';
 import { OAuthPlatform } from '../persistents/enums';
 import { IsUrlWithPort } from 'src/common/validators/is-url-with-port';
 
-export class GetOAuthLoginUrlParamDTO {
+export class GetOAuthConnectUrlParamDTO {
   @ApiProperty({ type: String, enum: OAuthPlatform })
   @IsEnum(OAuthPlatform)
   @IsNotEmpty()
   platform: OAuthPlatform;
 }
 
-export class GetOAuthLoginUrlBodyDTO {
+export class GetOAuthConnectUrlBodyDTO {
   @ApiProperty({ type: String, example: 'http://127.0.0.1:3000' })
   @IsUrlWithPort()
   @IsNotEmpty()
   callbackUrl: string;
 }
 
-export class GetOAuthLoginUrlResultDTO {
+export class GetOAuthConnectUrlResultDTO {
   @ApiProperty({ type: String })
   url: string;
 

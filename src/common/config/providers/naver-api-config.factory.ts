@@ -16,4 +16,8 @@ export class NaverApiConfigFactory {
   public getLoginRedirectURI(): string {
     return this.configService.getOrThrow('NAVER_LOGIN_REDIRECT_URI');
   }
+
+  public getConnectRedirectURI(): string {
+    return this.configService.getOrThrow('NAVER_CONNECT_REDIRECT_URI');
+  }
 }

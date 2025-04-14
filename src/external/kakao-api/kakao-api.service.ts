@@ -29,13 +29,46 @@ export class KakaoApiService {
     return [url, params].join('?');
   }
 
-  async getToken(code: string): Promise<KakaoTokenResponse> {
+  async getLoginToken(code: string): Promise<KakaoTokenResponse> {
     const url = 'https://kauth.kakao.com/oauth/token';
     const body: KakaoTokenRequestParam = {
       grant_type: 'authorization_code',
       client_id: this.kakaoApiConfigFactory.getClientID(),
       client_secret: this.kakaoApiConfigFactory.getClientSecret(),
       redirect_uri: this.kakaoApiConfigFactory.getLoginRedirectURI(),
+      code,
+    };
+
+    const response = await lastValueFrom(
+      this.httpService.post<KakaoTokenResponse>(url, body, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8' },
+      }),
+    ).catch((e) => {
+      throw new AxiosErrorException(e as AxiosError, 'KakaoGetAuthTokenFailedError');
+    });
+
+    return response.data;
+  }
+
+  public getConnectPageURL(state: string): string {
+    const url = 'https://kauth.kakao.com/oauth/authorize';
+    const params = qs.stringify({
+      response_type: 'code',
+      client_id: this.kakaoApiConfigFactory.getClientID(),
+      redirect_uri: this.kakaoApiConfigFactory.getConnectRedirectURI(),
+      state,
+    } as KakaoLoginURLRequestParam);
+
+    return [url, params].join('?');
+  }
+
+  async getConnectToken(code: string): Promise<KakaoTokenResponse> {
+    const url = 'https://kauth.kakao.com/oauth/token';
+    const body: KakaoTokenRequestParam = {
+      grant_type: 'authorization_code',
+      client_id: this.kakaoApiConfigFactory.getClientID(),
+      client_secret: this.kakaoApiConfigFactory.getClientSecret(),
+      redirect_uri: this.kakaoApiConfigFactory.getConnectRedirectURI(),
       code,
     };
 

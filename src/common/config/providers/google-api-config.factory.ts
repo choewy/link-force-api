@@ -16,4 +16,8 @@ export class GoogleApiConfigFactory {
   public getLoginRedirectURI(): string {
     return this.configService.getOrThrow('GOOGLE_LOGIN_REDIRECT_URI');
   }
+
+  public getConnectRedirectURI(): string {
+    return this.configService.getOrThrow('GOOGLE_CONNECT_REDIRECT_URI');
+  }
 }

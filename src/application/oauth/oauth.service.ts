@@ -16,8 +16,9 @@ import { OAuth } from './entities/oauth.entity';
 import { OAuthProfileResponse } from './persistents/types';
 import { OAuthPlatform } from './persistents/enums';
 import { OAuthProfile } from './persistents/oauth-profile';
-import { GetOAuthLoginUrlQueryDTO, GetOAuthLoginUrlResultDTO } from './dto/get-oauth-login-url.dto';
+import { GetOAuthLoginUrlBodyDTO, GetOAuthLoginUrlResultDTO } from './dto/get-oauth-login-url.dto';
 import { ProcessOAuthLoginCallbackQueryDTO } from './dto/process-oauth-login-callback.dto';
+import { GetOAuthConnectUrlBodyDTO } from './dto/get-oauth-connect-url.dto';
 
 @Injectable()
 export class OAuthService {
@@ -86,13 +87,17 @@ export class OAuthService {
     return [redirectUrl, qs.stringify({ authKey })].join('?');
   }
 
-  getLoginUrl(platform: OAuthPlatform, query: GetOAuthLoginUrlQueryDTO): GetOAuthLoginUrlResultDTO {
-    return new GetOAuthLoginUrlResultDTO(this.getOAuthApiService(platform).getLoginPageURL(query.callbackUrl));
+  getLoginUrl(platform: OAuthPlatform, body: GetOAuthLoginUrlBodyDTO): GetOAuthLoginUrlResultDTO {
+    return new GetOAuthLoginUrlResultDTO(this.getOAuthApiService(platform).getLoginPageURL(body.callbackUrl));
+  }
+
+  getConnectUrl(platform: OAuthPlatform, body: GetOAuthConnectUrlBodyDTO): GetOAuthLoginUrlResultDTO {
+    return new GetOAuthLoginUrlResultDTO(this.getOAuthApiService(platform).getLoginPageURL(body.callbackUrl));
   }
 
   async processLoginCallback(platform: OAuthPlatform, query: ProcessOAuthLoginCallbackQueryDTO) {
     const oauthApiService = this.getOAuthApiService(platform);
-    const oauthToken = await oauthApiService.getToken(query.code, query.state);
+    const oauthToken = await oauthApiService.getLoginToken(query.code, query.state);
     const oauthProfile = await oauthApiService.getProfile(oauthToken.access_token);
     const oauth = await this.findOrCreateOAuth(platform, oauthProfile);
 

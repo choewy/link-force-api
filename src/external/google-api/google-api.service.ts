@@ -30,13 +30,48 @@ export class GoogleApiService {
     return [url, params].join('?');
   }
 
-  async getToken(code: string) {
+  async getLoginToken(code: string) {
     const url = 'https://oauth2.googleapis.com/token';
     const params = {
       grant_type: 'authorization_code',
       client_id: this.googleApiConfigFactory.getClientID(),
       client_secret: this.googleApiConfigFactory.getClientSecret(),
       redirect_uri: this.googleApiConfigFactory.getLoginRedirectURI(),
+      code,
+    } as GoogleTokenRequestParam;
+
+    const response = await lastValueFrom(
+      this.httpService.post<GoogleTokenResponse>(url, null, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        params,
+      }),
+    ).catch((e) => {
+      throw new AxiosErrorException(e as AxiosError, 'GoogleGetAuthTokenFailedError');
+    });
+
+    return response.data;
+  }
+
+  public getConnectPageURL(state: string): string {
+    const url = 'https://accounts.google.com/o/oauth2/v2/auth';
+    const params = qs.stringify({
+      response_type: 'code',
+      scope: ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'].join(' '),
+      client_id: this.googleApiConfigFactory.getClientID(),
+      redirect_uri: this.googleApiConfigFactory.getConnectRedirectURI(),
+      state,
+    } as GoogleLoginURLRequestParam);
+
+    return [url, params].join('?');
+  }
+
+  async getConnectToken(code: string) {
+    const url = 'https://oauth2.googleapis.com/token';
+    const params = {
+      grant_type: 'authorization_code',
+      client_id: this.googleApiConfigFactory.getClientID(),
+      client_secret: this.googleApiConfigFactory.getClientSecret(),
+      redirect_uri: this.googleApiConfigFactory.getConnectRedirectURI(),
       code,
     } as GoogleTokenRequestParam;
 

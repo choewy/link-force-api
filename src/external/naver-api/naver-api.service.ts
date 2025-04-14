@@ -29,7 +29,36 @@ export class NaverApiService {
     return [url, params].join('?');
   }
 
-  async getToken(code: string, state: string) {
+  async getLoginToken(code: string, state: string) {
+    const url = 'https://nid.naver.com/oauth2.0/token';
+    const params = {
+      grant_type: 'authorization_code',
+      client_id: this.naverApiConfigFactory.getClientID(),
+      client_secret: this.naverApiConfigFactory.getClientSecret(),
+      code,
+      state,
+    } as NaverTokenRequestParam;
+
+    const response = await lastValueFrom(this.httpService.get<NaverTokenResponse>(url, { params })).catch((e) => {
+      throw new AxiosErrorException(e as AxiosError, 'NaverGetAuthTokenFailedError');
+    });
+
+    return response.data;
+  }
+
+  public getConnectPageURL(state: string): string {
+    const url = 'https://nid.naver.com/oauth2.0/authorize';
+    const params = qs.stringify({
+      response_type: 'code',
+      client_id: this.naverApiConfigFactory.getClientID(),
+      redirect_uri: this.naverApiConfigFactory.getConnectRedirectURI(),
+      state,
+    } as NaverLoginURLRequestParam);
+
+    return [url, params].join('?');
+  }
+
+  async getConnectToken(code: string, state: string) {
     const url = 'https://nid.naver.com/oauth2.0/token';
     const params = {
       grant_type: 'authorization_code',
