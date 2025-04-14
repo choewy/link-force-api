@@ -48,13 +48,19 @@ export class OAuthService {
   private async findOrCreateOAuth(platform: OAuthPlatform, profile: OAuthProfileResponse) {
     const oauthProfile = OAuthProfile.of(platform, profile);
 
+    const existOAuth = await this.oauthRepository.findOne({
+      relations: { user: true },
+      where: { platform, accountId: oauthProfile.accountId },
+    });
+
+    if (existOAuth?.user) {
+      return existOAuth;
+    }
+
     let user = await this.userRepository.findOneBy({ email: oauthProfile.email });
 
     if (!user) {
-      user = await this.userRepository.save({
-        email: oauthProfile.email,
-        specification: new UserSpecification(),
-      });
+      user = await this.userRepository.save({ email: oauthProfile.email, specification: new UserSpecification() });
     }
 
     const oauth = await this.oauthRepository.save({
