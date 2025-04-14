@@ -17,6 +17,11 @@ export class GetOAuthConnectUrlBodyDTO {
   @IsUrlWithPort()
   @IsNotEmpty()
   callbackUrl: string;
+
+  @ApiProperty({ type: String, example: 'http://127.0.0.1:3000' })
+  @IsUrlWithPort()
+  @IsNotEmpty()
+  currentUrl: string;
 }
 
 export class GetOAuthConnectUrlResultDTO {

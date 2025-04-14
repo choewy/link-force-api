@@ -87,10 +87,12 @@ export class OAuthService {
     return [redirectUrl, qs.stringify({ authKey })].join('?');
   }
 
+  // TODO state를 json stringify 형태로 변경
   getLoginUrl(platform: OAuthPlatform, body: GetOAuthLoginUrlBodyDTO): GetOAuthLoginUrlResultDTO {
     return new GetOAuthLoginUrlResultDTO(this.getOAuthApiService(platform).getLoginPageURL(body.callbackUrl));
   }
 
+  // TODO state를 json stringify 형태로 변경
   getConnectUrl(platform: OAuthPlatform, body: GetOAuthConnectUrlBodyDTO): GetOAuthLoginUrlResultDTO {
     return new GetOAuthLoginUrlResultDTO(this.getOAuthApiService(platform).getLoginPageURL(body.callbackUrl));
   }
