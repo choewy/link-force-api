@@ -11,8 +11,8 @@ export class OAuthProfile implements Pick<OAuth, 'platform' | 'accountId' | 'nic
   constructor(
     readonly platform: OAuthPlatform,
     readonly accountId: string,
-    readonly name: string,
     readonly email: string,
+    readonly name: string,
     readonly nickname: string | null,
     readonly profileImage: string | null,
   ) {}
@@ -34,9 +34,9 @@ export class OAuthProfile implements Pick<OAuth, 'platform' | 'accountId' | 'nic
     return new OAuthProfile(
       OAuthPlatform.Kakao,
       kakaoProfile.id,
-      kakaoProfile.kakao_account.profile.nickname ?? null,
-      kakaoProfile.kakao_account.name ?? null,
       kakaoProfile.kakao_account.email ?? null,
+      kakaoProfile.kakao_account.name ?? null,
+      kakaoProfile.kakao_account.profile.nickname ?? null,
       kakaoProfile.kakao_account.profile.profile_image_url ?? null,
     );
   }
@@ -45,14 +45,14 @@ export class OAuthProfile implements Pick<OAuth, 'platform' | 'accountId' | 'nic
     return new OAuthProfile(
       OAuthPlatform.Naver,
       naverProfile.response.id,
-      naverProfile.response.nickname ?? null,
-      naverProfile.response.name ?? null,
       naverProfile.response.email ?? null,
+      naverProfile.response.name ?? null,
+      naverProfile.response.nickname ?? null,
       naverProfile.response.profile_image ?? null,
     );
   }
 
   private static fromGoogle(googleProfile: GoogleProfileResponse) {
-    return new OAuthProfile(OAuthPlatform.Google, googleProfile.id, googleProfile.name, googleProfile.name, googleProfile.email, googleProfile.picture);
+    return new OAuthProfile(OAuthPlatform.Google, googleProfile.id, googleProfile.email, googleProfile.name, googleProfile.name, googleProfile.picture);
   }
 }
