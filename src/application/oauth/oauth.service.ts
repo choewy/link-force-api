@@ -102,7 +102,13 @@ export class OAuthService {
     }
   }
 
-  private async createSignUrl(oauth: OAuth, redirectUrl: string) {
+  private async createRedirectUrl(oauth: OAuth, oauthCallbackState: OAuthCallbackState) {
+    const { redirectUrl, userId } = oauthCallbackState;
+
+    if (userId) {
+      return redirectUrl;
+    }
+
     const accessToken = this.authService.issueAccessToken(oauth.userId, String(oauth.platform), oauth.accountId);
     const refreshToken = this.authService.issueRefreshToken(accessToken);
     const authKey = await this.authService.setAuthToken(accessToken, refreshToken);
@@ -124,6 +130,6 @@ export class OAuthService {
     const oauthProfile = await oauthApiService.getProfile(oauthToken.access_token);
     const oauth = await this.findOrCreateOAuth(platform, oauthProfile, oauthCallbackState);
 
-    return this.createSignUrl(oauth, oauthCallbackState.redirectUrl);
+    return this.createRedirectUrl(oauth, oauthCallbackState);
   }
 }
