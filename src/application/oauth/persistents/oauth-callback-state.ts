@@ -8,10 +8,10 @@ export class OAuthCallbackState {
   ) {}
 
   public toString(): string {
-    return JSON.stringify(this);
+    return Buffer.from(JSON.stringify(this), 'utf-8').toString('base64');
   }
 
   public static from(state: string): OAuthCallbackState {
-    return plainToInstance(this, JSON.parse(state));
+    return plainToInstance(this, JSON.parse(Buffer.from(state, 'base64').toString('utf-8')));
   }
 }
