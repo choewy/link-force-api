@@ -72,7 +72,16 @@ export class OAuthService {
 
     try {
       if (!user) {
-        user = await this.userRepository.save({ email: oauthProfile.email, specification: new UserSpecification() });
+        user = await this.userRepository.findOneBy({
+          email: oauthProfile.email,
+        });
+      }
+
+      if (!user) {
+        user = await this.userRepository.save({
+          email: oauthProfile.email,
+          specification: new UserSpecification(),
+        });
       }
 
       const oauth = await this.oauthRepository.save({
